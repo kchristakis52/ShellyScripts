@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Landing Page</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Gateways</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for (let i = 0; i < data.length; i++) { %>
+        <tr>
+          <td>
+            <button onclick="handleButtonClick('<%= data[i].uuid %>')">
+              <%= data[i].address %>
+            </button>
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <script>
+    function handleButtonClick(uuid) {
+        window.location.href = '/devices?gateway=' + uuid;
+    }
+  </script>
+</body>
+</html>

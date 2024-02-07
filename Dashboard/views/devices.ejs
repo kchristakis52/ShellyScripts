@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Devices</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Devices</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for (let i=0; i < data.length; i++) { %>
+        <tr>
+          <td>
+            <button onclick="handleButtonClick('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
+              <%= data[i].device_name %>
+            </button>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+  </table>
+
+  <script>
+    function handleButtonClick(device_id, gateway_uuid) {
+      fetch('/toggle_switch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ device_id: device_id, gateway_uuid: gateway_uuid })
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response data here
+        })
+        .catch(error => {
+          // Handle any errors here
+        });
+      console.log(device_id);
+      console.log(gateway_uuid);
+    }
+
+
+
+  </script>
+</body>
+
+</html>
