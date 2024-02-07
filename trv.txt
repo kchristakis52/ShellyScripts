@@ -1,0 +1,101 @@
+mosquitto_sub -h 192.168.1.2 -t shellies/shellytrv-60A423DB07A6/info
+
+{
+    "wifi_sta": {
+        "connected": true,
+        "ssid": "Kwstas",
+        "ip": "192.168.1.3",
+        "rssi": -37
+    },
+    "cloud": {
+        "enabled": false,
+        "connected": false
+    },
+    "mqtt": {
+        "connected": true
+    },
+    "time": "03:33",
+    "unixtime": 1706751181,
+    "serial": 0,
+    "has_update": false,
+    "mac": "60A423DB07A6",
+    "cfg_changed_cnt": 2,
+    "actions_stats": {
+        "skipped": 0
+    },
+    "thermostats": [
+        {
+            "pos": -1.0,
+            "target_t": {
+                "enabled": false,
+                "value": 31.0,
+                "value_op": 8.0,
+                "units": "C"
+            },
+            "tmp": {
+                "value": 21.2,
+                "units": "C",
+                "is_valid": true
+            },
+            "schedule": false,
+            "schedule_profile": 0,
+            "boost_minutes": 0,
+            "window_open": false
+        }
+    ],
+    "calibrated": false,
+    "bat": {
+        "value": 99,
+        "voltage": 3.939
+    },
+    "charger": false,
+    "update": {
+        "status": "unknown",
+        "has_update": false,
+        "new_version": "20231122-131839/v2.2.2@a458c94d",
+        "old_version": "20231122-131839/v2.2.2@a458c94d",
+        "beta_version": null
+    },
+    "ram_total": 97280,
+    "ram_free": 22488,
+    "fs_size": 65536,
+    "fs_free": 59488,
+    "uptime": 21933,
+    "fw_info": {
+        "device": "shellytrv-60A423DB07A6",
+        "fw": "20231122-131839/v2.2.2@a458c94d"
+    },
+    "ps_mode": 0,
+    "dbg_flags": 0
+}
+
+thermostats 	array of hashes 	Contains the current state of the thermostat. See /thermostats/0 for description of attributes
+calibrated 	bool 	If the thermostat is calibrated
+batt.value 	number 	Battery charge in percent
+batt.voltage 	number 	Measured battery voltage
+charger 	bool 	Whether a charger is connected
+
+Thermostats:
+pos 	number 	Position of the valve, 0..100 and -1 if not calibrated. Setting position to arbitrary value disables automatic temperature control
+target_t.value 	number 	Target temperature 4..31
+target_t.enabled 	bool 	If the automatic valve control is enabled
+target_t_units 	string 	Units of the target temperature. Only C is supported
+tmp.value 	number 	Measured temperature
+tmp.units 	bool 	Units of the measured temperature. Only C is supported
+tmp.is_valid 	string 	Whether the temperature sensor is operating properly
+schedule 	bool 	If schedule is enabled/disabled
+schedule_profile 	number 	Choosen active schedule profile with the provided id, 1..5
+boost_minutes 	number 	Current active valve boost time counter (100% open state)
+window_open 	bool 	Inform the TRV that a windows is open. If the open window report is enabled, the device will switch to the correspondig state
+
+Εντολές:
+shellies/shellytrv-<id>/thermostat/0/command/settings: will trigger piblishing the content of http /settings endpoint
+shellies/shellytrv-<id>/thermostat/0/command/schedule: accepts 1 or 0 to enable/disable schedule
+shellies/shellytrv-<id>/thermostat/0/command/schedule_profile: accepts number from 1 to 5 to choose active schedule profile with the provided id
+shellies/shellytrv-<id>/thermostat/0/command/target_t: accepts number from 4 to 31 set target temperature (Δεν καταφερα να το επιβεβαιωσω γιατι χρειαζεται να ειναι calibrated)
+shellies/shellytrv-<id>/thermostat/0/command/ext_t: accepts number to send external sensor temperature, in deg C (Δεν καταφερα να το επιβεβαιωσω γιατι χρειαζεται να ειναι calibrated)
+shellies/shellytrv-<id>/thermostat/0/command/valve_pos: accepts number from 0 to 100 to set manually the valve position, in % (Δεν καταφερα να το επιβεβαιωσω γιατι χρειαζεται να ειναι calibrated)
+shellies/shellytrv-<id>/thermostat/0/command/boost_minutes: accepts number to start boost mode for the given minutes, in minutes (Δεν καταφερα να το επιβεβαιωσω γιατι χρειαζεται να ειναι calibrated)
+shellies/shellytrv-<id>/thermostat/0/command/set_boost_minutes: accepts number to set the default boost time, in minutes (Δεν καταφερα να το επιβεβαιωσω γιατι χρειαζεται να ειναι calibrated)
+shellies/shellytrv-<id>/thermostat/0/command/valve_min_percent: accepts number from 0 to 10 to set the valve clse postion percent, in % (Δεν καταφερα να το επιβεβαιωσω γιατι χρειαζεται να ειναι calibrated)
+shellies/shellytrv-<id>/thermostat/0/command/accelerated_heating: accepts 1 or 0 to enable/disable accelerated heating (Δεν βρηκα καπου αυτη την παραμετρο και η εκτελεση της εντολης δεν οδηγησε σε recalibration οπως η προηγουμενες)
