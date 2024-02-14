@@ -53,8 +53,22 @@ app.post('/toggle_switch', (req, res) => {
     res.send('Message sent with MQTT');
 });
 
+app.post('insert_device_data', (req, res) => {
+    const device_id = req.body.device_id
+    const gateway_uuid = req.body.gateway_uuid
+    const type = req.body.type
+    const value = req.body.value
+    const timestamp = req.body.timestamp
 
-
+    db.run('INSERT INTO devices (device_id, value, timestamp, type, gateway_uuid) VALUES (?, ?, ?, ?,  ?)', [device_id, value, timestamp, type, gateway_uuid], (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send('Device data inserted');
+        }
+    });
+});
 
 // Start the server
 app.listen(port, () => {

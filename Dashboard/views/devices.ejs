@@ -41,8 +41,13 @@
       <% for (let i=0; i < data.length; i++) { %>
         <tr>
           <td>
-            <button onclick="handleButtonClick('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
-              <%= data[i].device_name %>
+            <button onclick="toggleSwitch('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
+              <%= data[i].device_name +" toggle" %>
+            </button>
+          </td>
+          <td>
+            <button onclick="getDeviceData('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
+              <%= data[i].device_name+" data" %>
             </button>
           </td>
         </tr>
@@ -51,8 +56,27 @@
   </table>
 
   <script>
-    function handleButtonClick(device_id, gateway_uuid) {
+    function toggleSwitch(device_id, gateway_uuid) {
       fetch('/toggle_switch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ device_id: device_id, gateway_uuid: gateway_uuid })
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response data here
+        })
+        .catch(error => {
+          // Handle any errors here
+        });
+      console.log(device_id);
+      console.log(gateway_uuid);
+    }
+
+    function getDeviceData(device_id, gateway_uuid) {
+      fetch('/get_device_data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
