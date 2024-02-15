@@ -40,7 +40,7 @@ app.get('/devices', (req, res) => {
 app.post('/toggle_switch', (req, res) => {
 
     const topic = req.body.gateway_uuid
-    const message = req.body.device_id
+    const message = req.body.url
     console.log(topic)
     console.log(message)
     // Send a message with MQTT
@@ -53,19 +53,17 @@ app.post('/toggle_switch', (req, res) => {
     res.send('Message sent with MQTT');
 });
 
-app.post('insert_device_data', (req, res) => {
-    const device_id = req.body.device_id
-    const gateway_uuid = req.body.gateway_uuid
-    const type = req.body.type
-    const value = req.body.value
-    const timestamp = req.body.timestamp
-
-    db.run('INSERT INTO devices (device_id, value, timestamp, type, gateway_uuid) VALUES (?, ?, ?, ?,  ?)', [device_id, value, timestamp, type, gateway_uuid], (err) => {
+app.get('get_device_data', (req, res) => {
+    const gatewayId = req.query.gateway
+    const deviceId = req.query.device
+    // Fetch data from the database
+    db.all('SELECT * FROM device_data WHERE gateway_uuid = ? AND device_uuid = ?', [gatewayId, deviceId], (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
-            res.send('Device data inserted');
+            // Render the landing page with the fetched data
+            res.send(rows);
         }
     });
 });
