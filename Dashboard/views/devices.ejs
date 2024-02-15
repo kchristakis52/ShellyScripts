@@ -46,7 +46,7 @@
             </button>
           </td>
           <td>
-            <button onclick="getDeviceData('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
+            <button onclick="getDeviceSensorData('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
               <%= data[i].device_name+" data" %>
             </button>
           </td>
@@ -75,8 +75,8 @@
       console.log(gateway_uuid);
     }
 
-    function getDeviceData(device_id, gateway_uuid) {
-      fetch('/get_device_data', {
+    function getDeviceSensorData(device_id, gateway_uuid) {
+      fetch('/device_sensor_data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
