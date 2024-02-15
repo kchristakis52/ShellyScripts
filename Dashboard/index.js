@@ -10,14 +10,24 @@ const port = 3000;
 const db = new sqlite3.Database('gateways.db');
 
 const client = mqtt.connect('mqtt://192.168.1.2');
-    client.on('connect', () => {
-        console.log('Connected to MQTT');
-        client.subscribe('download_data');
-    });
+client.on('connect', () => {
+    console.log('Connected to MQTT');
+    client.subscribe('download_data');
+});
 
-    client.on('message', (topic, message) => {
-        console.log('Received message:', message.toString());
-    });
+client.on('message', (topic, message) => {
+    console.log('Received message:', message.toString());
+    if (topic == 'download_data') {
+        const data = JSON.parse(message.toString());
+        db.run('INSERT INTO sensor_data (device_id, value, timestamp, type, gateway_uuid) VALUES (?, ?, ?, ?, ?)', [data.device_id, data.value, data.timestamp, data.type, data.gateway_uuid], (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log('Data inserted');
+            }
+        });
+    }
+});
 
 // Define the endpoint for the landing page
 app.get('/', (req, res) => {
@@ -57,7 +67,7 @@ app.post('/toggle_switch', (req, res) => {
 
     client.publish(topic, message);
     // client.end();
-    
+
 
     res.send('Message sent with MQTT');
 });
