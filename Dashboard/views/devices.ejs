@@ -46,7 +46,7 @@
             </button>
           </td>
           <td>
-            <button onclick="getDeviceSensorData('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
+            <button onclick="getDeviceSensors('<%= data[i].device_id %>', '<%= data[i].gateway_uuid %>')">
               <%= data[i].device_name+" data" %>
             </button>
           </td>
@@ -63,39 +63,12 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ url: `http://${device_id}/relay/0?turn=toggle`, gateway_uuid: gateway_uuid })
-      })
-        .then(response => response.json())
-        .then(data => {
-          // Handle the response data here
-        })
-        .catch(error => {
-          // Handle any errors here
-        });
-      console.log(device_id);
-      console.log(gateway_uuid);
+      });
     }
 
-    function getDeviceSensorData(device_id, gateway_uuid) {
-      fetch('/device_sensor_data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ device_id: device_id, gateway_uuid: gateway_uuid })
-      })
-        .then(response => response.json())
-        .then(data => {
-          // Handle the response data here
-        })
-        .catch(error => {
-          // Handle any errors here
-        });
-      console.log(device_id);
-      console.log(gateway_uuid);
+    function getDeviceSensors(device_id, gateway_uuid) {
+      window.location.href = '/device_sensors?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid;
     }
-
-
-
   </script>
 </body>
 
