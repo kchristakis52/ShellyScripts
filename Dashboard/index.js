@@ -61,10 +61,8 @@ app.post('/toggle_switch', (req, res) => {
 
     const topic = req.body.gateway_uuid
     const message = req.body.url
-    console.log(topic)
-    console.log(message)
-    // Send a message with MQTT
 
+    // Send a message with MQTT
     client.publish(topic, message);
     // client.end();
 
@@ -75,15 +73,13 @@ app.post('/toggle_switch', (req, res) => {
 app.get('/device_sensors', (req, res) => {
     const gatewayId = req.query.gateway_uuid
     const deviceId = req.query.device_id
-    console.log(gatewayId)
-    console.log(deviceId)
     // Fetch data from the database
     db.all('SELECT DISTINCT type, gateway_uuid, device_id FROM sensor_data WHERE gateway_uuid = ? AND device_id = ?', [gatewayId, deviceId], (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
-            console.log(rows)
+            // console.log(rows)
             res.render('device_sensors', { data: rows });
         }
     });
@@ -93,15 +89,14 @@ app.get('/device_sensor_data', (req, res) => {
     const gatewayId = req.query.gateway_uuid
     const deviceId = req.query.device_id
     const sensorType = req.query.type
-    console.log(gatewayId)
-    console.log(deviceId)
+
     // Fetch data from the database
     db.all('SELECT * FROM sensor_data WHERE gateway_uuid = ? AND device_id = ? AND type = ?', [gatewayId, deviceId, sensorType], (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
-            console.log(rows)
+            // console.log(rows)
             res.send(rows);
         }
     });
