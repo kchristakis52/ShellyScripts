@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        <%=sensor_type%> Data Line Graph
+    </title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+
+<body>
+    <div id="container"></div>
+
+    <script>
+        const sensorData = JSON.parse('<%- JSON.stringify(data) %>');
+        const sensorType = "<%=sensor_type %>"
+
+        // Convert timestamp to date format
+        const formattedData = sensorData.map(data => ({
+            x: new Date(data.timestamp * 1000),
+            y: data.value
+        }));
+
+        // Create the chart
+        Highcharts.chart('container', {
+            title: {
+                text: `${sensorType} Data Line Graph`
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+                title: {
+                    text: `${sensorType} Sensor Value`
+                }
+            },
+            series: [{
+                name: `${sensorType}  Data`,
+                data: formattedData
+            }]
+        });
+    </script>
+</body>
+
+</html>

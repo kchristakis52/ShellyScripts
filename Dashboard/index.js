@@ -64,8 +64,7 @@ app.post('/toggle_switch', (req, res) => {
 
     // Send a message with MQTT
     client.publish(topic, message);
-    // client.end();
-
+    
 
     res.send('Message sent with MQTT');
 });
@@ -91,13 +90,16 @@ app.get('/device_sensor_data', (req, res) => {
     const sensorType = req.query.type
 
     // Fetch data from the database
-    db.all('SELECT * FROM sensor_data WHERE gateway_uuid = ? AND device_id = ? AND type = ?', [gatewayId, deviceId, sensorType], (err, rows) => {
+    db.all('SELECT value, timestamp FROM sensor_data WHERE gateway_uuid = ? AND device_id = ? AND type = ? ORDER BY TIMESTAMP', [gatewayId, deviceId, sensorType], (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
             // console.log(rows)
-            res.send(rows);
+            res.render('device_data', { data: rows,
+                gateway_uuid: gatewayId,
+                device_id: deviceId,
+                sensor_type: sensorType[0].toUpperCase() + sensorType.slice(1)});
         }
     });
 });

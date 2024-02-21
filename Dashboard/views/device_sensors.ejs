@@ -56,14 +56,7 @@
 
 
     function getDeviceSensorData(device_id, gateway_uuid, type) {
-      fetch('/device_sensor_data?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid + '&type=' + type)
-        .then(response => response.json())
-        .then(data => {
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
+      window.location.href = '/device_sensor_data?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid + '&type=' + type
     }
   </script>
 </body>
