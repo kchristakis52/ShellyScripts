@@ -57,12 +57,26 @@
 
   <script>
     function toggleSwitch(device_id, gateway_uuid) {
+      const button = event.target;
+      button.disabled = true; // Disable the button to prevent multiple clicks
+      
       fetch('/toggle_switch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ url: `http://${device_id}/relay/0?turn=toggle`, gateway_uuid: gateway_uuid })
+      }).then(response => response.json()).then(data => {
+        console.log(data);
+        if (data.ison) {
+          button.style.backgroundColor = '#4CAF50'; // Change button color to green if device is on
+        } else {
+          button.style.backgroundColor = '#f44336'; // Change button color to red if device is off
+        }
+      }).catch(error => {
+        console.error('Error:', error);
+      }).finally(() => {
+        button.disabled = false; // Enable the button again
       });
     }
 

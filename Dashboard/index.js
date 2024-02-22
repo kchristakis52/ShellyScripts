@@ -61,11 +61,22 @@ app.post('/toggle_switch', (req, res) => {
     const topic = req.body.gateway_uuid
     const message = req.body.url
 
-    // Send a message with MQTT
-    client.publish(topic, message);
-    
+    const route_client = mqtt.connect('mqtt://192.168.1.2');
+    const timeout = 5000; // 5 seconds
 
-    res.send('Message sent with MQTT');
+    // Set the timeout for the response
+    res.setTimeout(timeout, () => {
+        res.status(500).send('Timeout Error');
+        route_client.end();
+    });
+
+    route_client.on('message',  (topic, message) => {
+        // console.log('Received message:', message.toString());
+        res.send(message.toString());
+        route_client.end();
+    });
+    route_client.subscribe(`${topic}/res`);
+    route_client.publish(topic, message);   
 });
 
 app.get('/device_sensors', (req, res) => {
