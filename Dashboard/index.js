@@ -58,7 +58,6 @@ app.get('/devices', (req, res) => {
 });
 
 app.post('/toggle_switch', (req, res) => {
-
     const topic = req.body.gateway_uuid
     const message = req.body.url
 
@@ -96,10 +95,10 @@ app.get('/device_sensor_data', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             // console.log(rows)
-            res.render('device_data', { data: rows,
-                gateway_uuid: gatewayId,
-                device_id: deviceId,
-                sensor_type: sensorType[0].toUpperCase() + sensorType.slice(1)});
+            res.render('device_data', {
+                data: rows,
+                sensor_type: sensorType[0].toUpperCase() + sensorType.slice(1)
+            });
         }
     });
 });
