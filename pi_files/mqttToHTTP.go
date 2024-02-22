@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -40,9 +41,15 @@ func onMessageReceived(client mqtt.Client, message mqtt.Message) {
 
 	if response.StatusCode == http.StatusOK {
 		fmt.Println("HTTP request successful")
+		b, err := io.ReadAll(response.Body)
+		if err != nil {
+			fmt.Printf("Error reading HTTP response body: %v\n", err)
+			return
+		}
+		fmt.Println(string(b))
 
 		// Send a response message
-		client.Publish(responseTopic, 0, false, response.Body)
+		client.Publish(responseTopic, 0, false, string(b))
 	} else {
 		fmt.Printf("HTTP request failed with status code %d\n", response.StatusCode)
 	}

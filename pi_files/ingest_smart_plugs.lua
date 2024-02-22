@@ -7,7 +7,7 @@ local env = assert(luasql.sqlite3())
 local con = assert(env:connect("sensor_data.db"))
 
 -- MQTT connection parameters
-local broker = "192.168.1.2:1883"
+local broker = "localhost:1883"
 local topic = "shellies/+/relay/0/+"
 local client_id = "mqtt_lua_client"
 
