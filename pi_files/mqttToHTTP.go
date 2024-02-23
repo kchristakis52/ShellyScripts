@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -29,29 +30,42 @@ func onMessageReceived(client mqtt.Client, message mqtt.Message) {
 	responseTopic := message.Topic() + "/res"
 	payload := string(message.Payload())
 	fmt.Printf("Received message: %s\n", payload)
-	urlToHit := payload
+	if payload == "sendData" {
+		cmd := exec.Command("/home/kostas/diplwmatiki/upload_data.lua")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 
-	// Make an HTTP request
-	response, err := http.Get(urlToHit)
-	if err != nil {
-		fmt.Printf("Error making HTTP request: %v\n", err)
-		return
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode == http.StatusOK {
-		fmt.Println("HTTP request successful")
-		b, err := io.ReadAll(response.Body)
+		err := cmd.Run()
 		if err != nil {
-			fmt.Printf("Error reading HTTP response body: %v\n", err)
+			fmt.Println("Error executing Lua script:", err)
+			os.Exit(1)
+		}
+	} else {
+
+		urlToHit := payload
+
+		// Make an HTTP request
+		response, err := http.Get(urlToHit)
+		if err != nil {
+			fmt.Printf("Error making HTTP request: %v\n", err)
 			return
 		}
-		fmt.Println(string(b))
+		defer response.Body.Close()
 
-		// Send a response message
-		client.Publish(responseTopic, 0, false, string(b))
-	} else {
-		fmt.Printf("HTTP request failed with status code %d\n", response.StatusCode)
+		if response.StatusCode == http.StatusOK {
+			fmt.Println("HTTP request successful")
+			b, err := io.ReadAll(response.Body)
+			if err != nil {
+				fmt.Printf("Error reading HTTP response body: %v\n", err)
+				return
+			}
+			fmt.Println(string(b))
+
+			// Send a response message
+			client.Publish(responseTopic, 0, false, string(b))
+		} else {
+			fmt.Printf("HTTP request failed with status code %d\n", response.StatusCode)
+		}
 	}
 }
 
