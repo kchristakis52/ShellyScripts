@@ -59,8 +59,8 @@
     function toggleSwitch(device_id, gateway_uuid) {
       const button = event.target;
       button.disabled = true; // Disable the button to prevent multiple clicks
-      
-      fetch('/toggle_switch', {
+
+      fetch('/mqtt_to_http', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -81,6 +81,11 @@
     }
 
     function getDeviceSensors(device_id, gateway_uuid) {
+      const headers = { type: 'application/json' };
+      const data = JSON.stringify({ url: "sendData", gateway_uuid: gateway_uuid });
+      const blob = new Blob([data], headers);
+      navigator.sendBeacon('/mqtt_to_http', blob);
+
       window.location.href = '/device_sensors?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid;
     }
   </script>

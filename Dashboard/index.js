@@ -2,6 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const mqtt = require('mqtt');
 const app = express();
+
 app.set('view engine', 'ejs');
 app.use(express.json());
 const port = 3000;
@@ -16,7 +17,7 @@ client.on('connect', () => {
 });
 
 client.on('message', (topic, message) => {
-    // console.log('Received message:', message.toString());
+    console.log('Received message:', message.toString());
     if (topic == 'download_data') {
         const data = JSON.parse(message.toString());
         db.run('INSERT INTO sensor_data (device_id, value, timestamp, type, gateway_uuid) VALUES (?, ?, ?, ?, ?)', [data.device_id, data.value, data.timestamp, data.type, data.gateway_uuid], (err) => {
@@ -57,10 +58,10 @@ app.get('/devices', (req, res) => {
     });
 });
 
-app.post('/toggle_switch', (req, res) => {
+app.post('/mqtt_to_http', (req, res) => {
     const topic = req.body.gateway_uuid
     const message = req.body.url
-
+    console.log(topic, message);
     const route_client = mqtt.connect('mqtt://192.168.1.2');
     const timeout = 5000; // 5 seconds
 
