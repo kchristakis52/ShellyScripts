@@ -10,14 +10,15 @@ const port = 3000;
 // Create a connection to the SQLite database
 const db = new sqlite3.Database('gateways.db');
 
-const client = mqtt.connect('mqtt://192.168.1.2');
+const mqtt_server_url = 'mqtt://192.168.1.2'
+const client = mqtt.connect(mqtt_server_url);
 client.on('connect', () => {
     console.log('Connected to MQTT');
     client.subscribe('download_data');
 });
 
 client.on('message', (topic, message) => {
-    console.log('Received message:', message.toString());
+    // console.log('Received message:', message.toString());
     if (topic == 'download_data') {
         const data = JSON.parse(message.toString());
         db.run('INSERT INTO sensor_data (device_id, value, timestamp, type, gateway_uuid) VALUES (?, ?, ?, ?, ?)', [data.device_id, data.value, data.timestamp, data.type, data.gateway_uuid], (err) => {
@@ -61,8 +62,7 @@ app.get('/devices', (req, res) => {
 app.post('/mqtt_to_http', (req, res) => {
     const topic = req.body.gateway_uuid
     const message = req.body.url
-    console.log(topic, message);
-    const route_client = mqtt.connect('mqtt://192.168.1.2');
+    const route_client = mqtt.connect(mqtt_server_url);
     const timeout = 5000; // 5 seconds
 
     // Set the timeout for the response
@@ -71,13 +71,13 @@ app.post('/mqtt_to_http', (req, res) => {
         route_client.end();
     });
 
-    route_client.on('message',  (topic, message) => {
+    route_client.on('message', (topic, message) => {
         // console.log('Received message:', message.toString());
         res.send(message.toString());
         route_client.end();
     });
     route_client.subscribe(`${topic}/res`);
-    route_client.publish(topic, message);   
+    route_client.publish(topic, message);
 });
 
 app.get('/device_sensors', (req, res) => {
