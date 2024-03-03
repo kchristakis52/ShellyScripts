@@ -1,6 +1,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const mqtt = require('mqtt');
+const WebSocket = require('ws');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -63,21 +64,8 @@ app.post('/mqtt_to_http', (req, res) => {
     const topic = req.body.gateway_uuid
     const message = req.body.url
     const route_client = mqtt.connect(mqtt_server_url);
-    const timeout = 5000; // 5 seconds
-
-    // Set the timeout for the response
-    res.setTimeout(timeout, () => {
-        res.status(500).send('Timeout Error');
-        route_client.end();
-    });
-
-    route_client.on('message', (topic, message) => {
-        // console.log('Received message:', message.toString());
-        res.send(message.toString());
-        route_client.end();
-    });
-    route_client.subscribe(`${topic}/res`);
-    route_client.publish(topic, message);
+    route_client.publish(topic, "open");
+    
 });
 
 app.get('/device_sensors', (req, res) => {
