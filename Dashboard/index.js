@@ -1,6 +1,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const mqtt = require('mqtt');
+const { v4: uuidv4 } = require('uuid');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -60,7 +61,7 @@ app.get('/devices', (req, res) => {
 });
 
 app.post('/mqtt_to_http', (req, res) => {
-    const topic = req.body.gateway_uuid
+    const topic = `${req.body.gateway_uuid}/${uuidv4()}`
     const message = req.body.url
     const route_client = mqtt.connect(mqtt_server_url);
     const timeout = 5000; // 5 seconds
@@ -71,10 +72,12 @@ app.post('/mqtt_to_http', (req, res) => {
         route_client.end();
     });
 
-    route_client.on('message', (topic, message) => {
+    route_client.on('message', (response_topic, message) => {
         // console.log('Received message:', message.toString());
-        res.send(message.toString());
-        route_client.end();
+        if (`${topic}/res` == response_topic) {
+            res.send(message.toString());
+            route_client.end();
+        }
     });
     route_client.subscribe(`${topic}/res`);
     route_client.publish(topic, message);
