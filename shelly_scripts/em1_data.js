@@ -14,6 +14,6 @@ function sendMQTTMessage(result, error_code, error_message) {
 }
 
 Timer.set(1000, true, function () {
-    Shelly.call("EM1.GetStatus", { id: 0 }, sendMQTTMessage);
-    Shelly.call("EM1.GetStatus", { id: 1 }, sendMQTTMessage);
+    Shelly.call("EM1Data.GetStatus", { id: 0 }, sendMQTTMessage);
+    Shelly.call("EM1Data.GetStatus", { id: 1 }, sendMQTTMessage);
 });
