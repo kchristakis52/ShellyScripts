@@ -60,13 +60,20 @@
       const button = event.target;
       button.disabled = true; // Disable the button to prevent multiple clicks
 
+      function checkStatus(response) {
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
+        return response;
+      }
+
       fetch('/mqtt_to_http', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ url: `http://${device_id}/relay/0?turn=toggle`, gateway_uuid: gateway_uuid })
-      }).then(response => response.json()).then(data => {
+      }).then(checkStatus).then(response => response.json()).then(data => {
         console.log(data);
         if (data.ison) {
           button.style.backgroundColor = '#4CAF50'; // Change button color to green if device is on
