@@ -81,6 +81,11 @@ app.post('/mqtt_to_http', (req, res) => {
     const topic = req.body.gateway_uuid
     const message = req.body.url
     const request_uuid = uuidv4()
+    res.setTimeout(5000, () => {
+        res.status(500).send('Timeout Error');
+        delete inflight_http_requests[request_uuid]
+    });
+
     inflight_http_requests[request_uuid] = {
         message: message,
         res: res
