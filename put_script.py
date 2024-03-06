@@ -23,6 +23,7 @@ import requests
 parser = ArgumentParser()
 parser.add_argument("host", help="IP address or hostname of the Shelly device")
 parser.add_argument("file", help="Local file containing the script code to upload")
+parser.add_argument("mqtt_topic", help="MQTT topic to publish to")
 
 SYMBOLS_IN_CHUNK = 1024
 
@@ -65,6 +66,7 @@ def main():
         encoding="utf-8",
     ) as f:
         code = f.read()
+        code = code.replace("{topic_placeholder}", args.mqtt_topic)
 
     pos = 0
     append = False
