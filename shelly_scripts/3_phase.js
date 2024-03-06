@@ -8,12 +8,14 @@ function timestampToTime(timestamp) {
 
 function sendMQTTMessage(result, error_code, error_message) {
     let unix_timestamp = Shelly.getComponentStatus("sys").unixtime;
+    let location = Shelly.getComponentConfig("sys").location;
+    result.location = location;
     result.time = timestampToTime(unix_timestamp);
     // print(JSON.stringify(result))
     MQTT.publish("shellies/EM" + result.id, JSON.stringify(result), 0, false);
 }
 
 Timer.set(1000, true, function () {
-    Shelly.call("EM1Data.GetStatus", { id: 0 }, sendMQTTMessage);
-    Shelly.call("EM1Data.GetStatus", { id: 1 }, sendMQTTMessage);
+    Shelly.call("EMData.GetStatus", { id: 0 }, sendMQTTMessage);
+    Shelly.call("EM.GetStatus", { id: 0 }, sendMQTTMessage);
 });
