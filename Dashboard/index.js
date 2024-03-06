@@ -2,6 +2,8 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const mqtt = require('mqtt');
 const WebSocket = require('ws');
+const { v4: uuidv4 } = require('uuid');
+const wss = new WebSocket.WebSocketServer({ port: 8080 });
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -16,6 +18,21 @@ const client = mqtt.connect(mqtt_server_url);
 client.on('connect', () => {
     console.log('Connected to MQTT');
     client.subscribe('download_data');
+});
+let inflight_http_requests = {}
+wss.on('connection', function connection(ws, http_request) {
+    request_uuid = http_request.url.split('/')[1]
+    ws.on('error', console.error);
+
+    ws.on('message', function message(data) {
+        console.log('received: %s', data);
+        inflight_http_requests[request_uuid].res.send(data)
+        delete inflight_http_requests[request_uuid]
+    });
+
+    if (inflight_http_requests[request_uuid]) {
+        ws.send(inflight_http_requests[request_uuid].message)
+    }
 });
 
 client.on('message', (topic, message) => {
@@ -63,9 +80,13 @@ app.get('/devices', (req, res) => {
 app.post('/mqtt_to_http', (req, res) => {
     const topic = req.body.gateway_uuid
     const message = req.body.url
-    const route_client = mqtt.connect(mqtt_server_url);
-    route_client.publish(topic, "open");
-    
+    const request_uuid = uuidv4()
+    inflight_http_requests[request_uuid] = {
+        message: message,
+        res: res
+    }
+    client.publish(topic, request_uuid);
+    // res.send('Request sent');
 });
 
 app.get('/device_sensors', (req, res) => {
