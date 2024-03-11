@@ -55,11 +55,8 @@ function sendMQTTMessage(result, error_code, error_message) {
     let unix_timestamp = Shelly.getComponentStatus("sys").unixtime;
     result.timestamp = timestampToTime(unix_timestamp);
     let location = Shelly.getComponentConfig("sys").location;
-    let mqtt_message = {
-        ...result,
-        ...EMData,
-        ...location
-    }
+    let temp_object = Object.assign(result, location)
+    let mqtt_message = Object.assign(temp_object, EMData)
     // print(JSON.stringify(result))
     MQTT.publish("shellies/EM" + result.id, JSON.stringify(mqtt_message), 0, false);
 }
