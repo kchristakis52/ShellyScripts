@@ -24,7 +24,7 @@ Timer.set(CONFIG.interval, true, function () {
             }
 
             //MQTT.publish("hello/world", JSON.stringify(result), 0, false);
-            MQTT.publish("hello/world", JSON.stringify(mqtt_mess), 0, false);
+            MQTT.publish("{topic_placeholder}", JSON.stringify(mqtt_mess), 0, false);
             if (result.output === true) {
                 print("Switch is on");
             }
