@@ -7,7 +7,6 @@
 //     "aprt_power": 951.9,
 //     "pf": 1,
 //     "freq": 50,
-//     "calibration": "factory",
 //     "errors": [
 //         "out_of_range:current"
 //     ],
@@ -20,28 +19,41 @@
 
 // }
 
+function createTimestamp() {
+    let myDate = new Date();
+    let year = myDate.getFullYear();
+    let month = padZero(myDate.getMonth() + 1);
+    let day = padZero(myDate.getDate());
+    let hours = padZero(myDate.getHours());
+    let minutes = padZero(myDate.getMinutes());
+    let seconds = padZero(myDate.getSeconds());
 
-function timestampToTime(timestamp) {
-    const date = new Date(timestamp * 1000);
-    const hours = date.getHours();
-    const minutes = "0" + date.getMinutes();
-    const seconds = "0" + date.getSeconds();
-    return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    let formattedTimestamp = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds + 'Z';
+
+    return formattedTimestamp;
+}
+function padZero(number) {
+    // Function to pad single-digit numbers with a leading zero
+    return number < 10 ? '0' + number : number;
 }
 
-function sendMQTTMessage(result, error_code, error_message) {
-    let EM1Data = Shelly.getComponentStatus("EM1Data", result.id);
-    delete EM1Data.id; // remove id from the EM1Data object to avoid duplicate keys
-    let unix_timestamp = Shelly.getComponentStatus("sys").unixtime;
-    result.timestamp = timestampToTime(unix_timestamp);
+
+function sendMQTTMessage(sensor_id) {
+    let EM1 = Shelly.getComponentStatus("EM1", sensor_id);
+    let EM1Data = Shelly.getComponentStatus("EM1Data", sensor_id);
+    EM1.timestamp = createTimestamp();
     let location = Shelly.getComponentConfig("sys").location;
-    let temp_object = Object.assign(result, location)
-    let mqtt_message = Object.assign(temp_object, EM1Data)
-    // print(JSON.stringify(result))
-    MQTT.publish("shellies/EM" + result.id, JSON.stringify(mqtt_message), 0, false);
+    let mqtt_message = Object.assign({}, EM1, EM1Data, location);
+    delete mqtt_message.calibration
+    delete mqtt_message.id
+    if (EM1.id == 0) {
+        MQTT.publish("shellies/EM/filippas", JSON.stringify(mqtt_message), 0, false);
+    } else {
+        MQTT.publish("shellies/thermosifonas/filippas", JSON.stringify(mqtt_message), 0, false);
+    }
 }
 
 Timer.set(1000, true, function () {
-    Shelly.call("EM1.GetStatus", { id: 0 }, sendMQTTMessage);
-    Shelly.call("EM1.GetStatus", { id: 1 }, sendMQTTMessage);
+    sendMQTTMessage(0);
+    sendMQTTMessage(1);
 });
