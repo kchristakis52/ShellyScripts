@@ -41,26 +41,34 @@
 //     "lon": 23.31119
 // }
 
-function timestampToTime(timestamp) {
-    const date = new Date(timestamp * 1000);
-    const hours = date.getHours();
-    const minutes = "0" + date.getMinutes();
-    const seconds = "0" + date.getSeconds();
-    return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+function createTimestamp() {
+    let myDate = new Date();
+    let year = myDate.getFullYear();
+    let month = padZero(myDate.getMonth() + 1);
+    let day = padZero(myDate.getDate());
+    let hours = padZero(myDate.getHours());
+    let minutes = padZero(myDate.getMinutes());
+    let seconds = padZero(myDate.getSeconds());
+
+    let formattedTimestamp = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds + 'Z';
+
+    return formattedTimestamp;
+}
+function padZero(number) {
+    // Function to pad single-digit numbers with a leading zero
+    return number < 10 ? '0' + number : number;
 }
 
-function sendMQTTMessage(result, error_code, error_message) {
+
+function sendMQTTMessage() {
+    let EM = Shelly.getComponentStatus("EM", 0);
     let EMData = Shelly.getComponentStatus("EMData", 0);
-    delete EMData.id; // remove id from the EMData object to avoid duplicate keys
-    let unix_timestamp = Shelly.getComponentStatus("sys").unixtime;
-    result.timestamp = timestampToTime(unix_timestamp);
+    EM.timestamp = createTimestamp();
     let location = Shelly.getComponentConfig("sys").location;
-    let temp_object = Object.assign(result, location)
-    let mqtt_message = Object.assign(temp_object, EMData)
-    // print(JSON.stringify(result))
-    MQTT.publish("shellies/EM" + result.id, JSON.stringify(mqtt_message), 0, false);
+    let mqtt_message = Object.assign({}, EM, EMData, location);
+    delete mqtt_message.id
+    delete mqtt_message.user_calibrated_phase
+    MQTT.publish("shellies/3EM", JSON.stringify(mqtt_message), 0, false);
 }
 
-Timer.set(1000, true, function () {
-    Shelly.call("EM.GetStatus", { id: 0 }, sendMQTTMessage);
-});
+Timer.set(1000, true, sendMQTTMessage);
