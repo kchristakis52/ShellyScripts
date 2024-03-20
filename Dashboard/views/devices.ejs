@@ -72,7 +72,7 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ url: `http://${device_id}/relay/0?turn=toggle`, gateway_uuid: gateway_uuid })
+        body: JSON.stringify({ url: `http://${device_id}.local/relay/0?turn=toggle`, gateway_uuid: gateway_uuid })
       }).then(checkStatus).then(response => response.json()).then(data => {
         console.log(data);
         if (data.ison) {
