@@ -6,19 +6,19 @@ import paho.mqtt.client as mqtt
 
 
 SYMBOLS_IN_CHUNK = 1024
+script_id = None
 
 
-def create_script(shelly_id, name, mqtt_host):
+def create_script(shelly_id, name, mqtt_host) -> int | None:
     """Create a new script on the device and return its ID"""
 
     def on_connect(client, userdata, flags, rc, properties):
-        print("Connected with result code " + str(rc))
         client.subscribe(f"{shelly_id}/create/rpc")
 
     def on_message(client, userdata, msg):
         payload_dict = json.loads(msg.payload.decode("utf-8"))
-        print(payload_dict)
-        client.loop_stop()
+        global id
+        id = payload_dict["result"]["id"]
         client.disconnect()
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -26,6 +26,7 @@ def create_script(shelly_id, name, mqtt_host):
     # Set the callback function for connection
     client.on_connect = on_connect
     client.on_message = on_message
+
     create_message = {
         "id": 1,
         "src": f"{shelly_id}/create",
@@ -33,34 +34,61 @@ def create_script(shelly_id, name, mqtt_host):
         "params": {"name": name},
     }
     client.connect(mqtt_host)
-    client.loop_start()
-
-    # Wait for the connection to be established
-    while not client.is_connected():
-        pass
     client.publish(shelly_id + "/rpc", json.dumps(create_message))
-    time.sleep(10)
-
-    # Stop the loop
-    client.loop_stop()
-    client.disconnect()
-    print("mpika")
+    client.loop_forever()
+    return id
 
 
-# def put_chunk(host, id_, data, append=True):
-#     url = f"http://{host}/rpc/Script.PutCode"
-#     req = {"id": id_, "code": data, "append": append}
-#     req_data = json.dumps(req, ensure_ascii=False)
-#     res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
+def put_chunk(shelly_id, id_, data, mqtt_host, append=True):
+    put_chunk_message = {
+        "id": 1,
+        "src": f"{shelly_id}/create",
+        "method": "Script.PutCode",
+        "params": {"id": id_, "code": data},
+    }
+    publish.single(
+        shelly_id + "/rpc", json.dumps(put_chunk_message), hostname=mqtt_host
+    )
 
 
-# def autostart_script(host, id_) -> bool:
-#     """Start the script on the device"""
-#     url = f"http://{host}/rpc/Script.SetConfig"
-#     req = {"id": id_, "config": {"enable": True}}
-#     req_data = json.dumps(req, ensure_ascii=False)
-#     res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
-#     return res.json()["restart_required"]
+def autostart_script(shelly_id, id_, mqtt_host):
+    """Start the script on the device"""
+    autostart_message = {
+        "id": 1,
+        "src": f"{shelly_id}/autostart",
+        "method": "Script.SetConfig",
+        "params": {"id": id_, "config": {"enable": True}},
+    }
+    publish.single(
+        shelly_id + "/rpc", json.dumps(autostart_message), hostname=mqtt_host
+    )
 
 
-create_script("shellyplusplugs-3ce90e2fbe5c", "onoma", "192.168.1.7")
+def main(shelly_id, script_file_path, mqtt_host, script_topic):
+    script_id = create_script(shelly_id, script_file_path, mqtt_host)
+
+    with open(
+        script_file_path,
+        mode="r",
+        encoding="utf-8",
+    ) as f:
+        code = f.read()
+        code = code.replace("{topic_placeholder}", script_topic)
+
+    pos = 0
+    append = False
+    print(f"total {len(code)} bytes")
+    while pos < len(code):
+        chunk = code[pos : pos + SYMBOLS_IN_CHUNK]
+        put_chunk(shelly_id, script_id, chunk, mqtt_host, append)
+        pos += len(chunk)
+        append = True
+    autostart_script(shelly_id, script_id, mqtt_host)
+
+
+main(
+    "shellyplusplugs-3ce90e2fbe5c",
+    "./shelly_scripts/test_script.js",
+    "192.168.1.7",
+    "test/topic",
+)
