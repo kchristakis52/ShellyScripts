@@ -40,20 +40,26 @@
     <tbody>
       <% for (let i=0; i < devices.length; i++) { %>
         <tr>
-          <td><%= devices[i].device_name %></td>
+          <td>
+            <%= devices[i].device_name %>
+          </td>
           <td>
             <% for (let j=0; j < devices[i].actions.length; j++) { %>
-              <% if (devices[i].actions[j].action_type === 'button') { %>
-                <button onclick="toggleSwitch('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
+              <% if (devices[i].actions[j].action_type==='button' ) { %>
+                <button
+                  onclick="toggleSwitch('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].actions[j].action_endpoint %>')">
                   <%= devices[i].actions[j].action_name %>
                 </button>
-              <% } else if (devices[i].actions[j].action_type === 'field') { %>
-                <input type="number" id="input_<%= devices[i].device_id %>_<%= devices[i].actions[j].action_name %>" placeholder="Enter value">
-                <button onclick="sendNumber('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
-                  <%= devices[i].actions[j].action_name %>
-                </button>
-              <% } %>
-            <% } %>
+                <% } else if (devices[i].actions[j].action_type==='field' ) { %>
+                  <input type="number"
+                    id="input_<%= devices[i].device_id %>_<%= devices[i].actions[j].action_endpoint %>"
+                    placeholder="Enter value">
+                  <button
+                    onclick="sendNumber('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].actions[j].action_endpoint %>')">
+                    <%= devices[i].actions[j].action_name %>
+                  </button>
+                  <% } %>
+                    <% } %>
           </td>
           <td>
             <button onclick="getDeviceSensors('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
@@ -66,23 +72,23 @@
   </table>
 
   <script>
-    function toggleSwitch(device_id, gateway_uuid) {
+    function checkStatus(response) {
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      return response;
+    }
+
+    function toggleSwitch(device_id, gateway_uuid, action_endpoint) {
       const button = event.target;
       button.disabled = true; // Disable the button to prevent multiple clicks
-
-      function checkStatus(response) {
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-        return response;
-      }
 
       fetch('/mqtt_to_http', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ url: `http://${device_id}.local/relay/0?turn=toggle`, gateway_uuid: gateway_uuid })
+        body: JSON.stringify({ url: `http://${device_id}.local${action_endpoint}`, gateway_uuid: gateway_uuid })
       }).then(checkStatus).then(response => response.json()).then(data => {
         console.log(data);
         if (data.ison) {
@@ -96,13 +102,28 @@
         button.disabled = false; // Enable the button again
       });
     }
-    function sendNumber(device_id, action_id) {
-      const inputField = document.getElementById('input_' + device_id + '_' + action_name);
+
+    function sendNumber(device_id, gateway_uuid, action_endpoint) {
+      const inputField = document.getElementById('input_' + device_id + '_' + action_endpoint);
       const value = inputField.value;
       const button = event.target;
       button.disabled = true;
 
-      // Implement logic to send the number input to the server
+      fetch('/mqtt_to_http', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: `http://${device_id}.local${action_endpoint}${value}`, gateway_uuid: gateway_uuid })
+      }).then(checkStatus).then(response => response.json()).then(data => {
+        console.log(data);
+        // do something
+      }).catch(error => {
+        console.error('Error:', error);
+      }).finally(() => {
+        button.disabled = false; // Enable the button again
+      });
+
     }
 
     function getDeviceSensors(device_id, gateway_uuid) {
