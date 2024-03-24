@@ -26,11 +26,13 @@ wss.on('connection', function connection(ws, http_request) {
 
     ws.on('message', function message(data) {
         console.log('received: %s', data);
-        inflight_http_requests[request_uuid].res.send(data)
-        delete inflight_http_requests[request_uuid]
+        if (inflight_http_requests.hasOwnProperty(request_uuid)) {
+            inflight_http_requests[request_uuid].res.send(data)
+            delete inflight_http_requests[request_uuid]
+        }
     });
 
-    if (inflight_http_requests[request_uuid]) {
+    if (inflight_http_requests.hasOwnProperty(request_uuid)) {
         ws.send(inflight_http_requests[request_uuid].message)
     }
 });
@@ -66,7 +68,7 @@ app.get('/', (req, res) => {
 app.get('/devices', (req, res) => {
     const gatewayId = req.query.gateway
     // Fetch data from the database
-    db.all("SELECT devices.*, json_group_array(json_object('action_name', actions.action_name, 'action_type', actions.action_type)) as actions from devices inner join actions on devices.device_type=actions.device_type where gateway_uuid = ? group by device_id", [gatewayId], (err, rows) => {
+    db.all("SELECT devices.*, json_group_array(json_object('action_name', actions.action_name, 'action_type', actions.action_type, 'action_endpoint', actions.action_endpoint)) as actions from devices inner join actions on devices.device_type=actions.device_type where gateway_uuid = ? group by device_id", [gatewayId], (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
