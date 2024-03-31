@@ -4,18 +4,6 @@
 <head>
   <title>Homes</title>
   <style>
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    th,
-    td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
     button {
       padding: 8px 16px;
       background-color: #4CAF50;
@@ -33,7 +21,7 @@
       box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
       transition: 0.3s;
       border-radius: 5px;
-      
+
     }
 
     /* On mouse-over, add a deeper shadow */
@@ -51,11 +39,21 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      align-items: center;
+    }
+
+    header {
+      background-color: #f1f1f1;
+      text-align: center;
+      font-size: 25px;
     }
   </style>
 </head>
 
 <body>
+  <header>
+    <h1>Homes</h1>
+  </header>
   <div class="card-container">
     <% for (let i=0; i < data.length; i++) { %>
       <div class="card" onclick="handleButtonClick('<%= data[i].uuid %>')">
@@ -64,7 +62,7 @@
               <%= data[i].address %>
             </b>
           </h4>
-          <p>Architect & Engineer</p>
+          <p>Lorem ipsum</p>
         </div>
       </div>
       <% } %>
