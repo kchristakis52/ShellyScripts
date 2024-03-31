@@ -100,6 +100,10 @@ app.get('/device_sensors', (req, res) => {
         }
     });
 });
+app.get('/device_controls', (req, res) => {
+    const deviceType = req.query.device_type
+    res.render(`${deviceType}_controls`, { gateway_uuid: req.query.gateway_uuid, device_id: req.query.device_id });
+});
 
 app.get('/device_sensor_data', (req, res) => {
     const gatewayId = req.query.gateway_uuid
