@@ -105,21 +105,22 @@ app.get('/device_controls', (req, res) => {
     res.render(`${deviceType}_controls`, { gateway_uuid: req.query.gateway_uuid, device_id: req.query.device_id });
 });
 
-app.get('/device_sensor_data', (req, res) => {
+app.get('/device_data', (req, res) => {
     const gatewayId = req.query.gateway_uuid
     const deviceId = req.query.device_id
-    const sensorType = req.query.type
 
     // Fetch data from the database
-    db.all('SELECT value, timestamp FROM sensor_data WHERE gateway_uuid = ? AND device_id = ? AND type = ? ORDER BY TIMESTAMP', [gatewayId, deviceId, sensorType], (err, rows) => {
+    db.all("SELECT type, json_group_array(json_object('value', sensor_data.value, 'timestamp',sensor_data.timestamp)) as data FROM sensor_data WHERE gateway_uuid = ? AND device_id = ? GROUP BY type ", [gatewayId, deviceId], (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
-            // console.log(rows)
+            rows.forEach(row => {
+                row.data = JSON.parse(row.data)
+            })
+            console.log(rows)
             res.render('device_data', {
-                data: rows,
-                sensor_type: sensorType[0].toUpperCase() + sensorType.slice(1)
+                data_array: rows
             });
         }
     });

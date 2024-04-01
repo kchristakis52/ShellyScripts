@@ -3,43 +3,50 @@
 
 <head>
     <title>
-        <%=sensor_type%> Data Line Graph
+        Data Line Graph
     </title>
     <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 
 <body>
-    <div id="container"></div>
+    <% for (let i=0; i < data_array.length; i++) { %>
 
-    <script>
-        const sensorData = JSON.parse('<%- JSON.stringify(data) %>');
-        const sensorType = "<%=sensor_type %>"
+        <div id="container<%= i %>"></div>
+        <% } %>
+            <script>
+                const sensorDataArray = JSON.parse('<%- JSON.stringify(data_array) %>');
 
-        // Convert timestamp to date format
-        const formattedData = sensorData.map(data => ({
-            x: new Date(data.timestamp * 1000),
-            y: data.value
-        }));
+                for (let i = 0; i < sensorDataArray.length; i++) {
+                    sensorData = sensorDataArray[i].data;
+                    sensorType = sensorDataArray[i].type;
+                    // Convert timestamp to date format
+                    const formattedData = sensorData.map(data => ({
+                        x: new Date(data.timestamp * 1000),
+                        y: data.value
+                    }));
 
-        // Create the chart
-        Highcharts.chart('container', {
-            title: {
-                text: `${sensorType} Data Line Graph`
-            },
-            xAxis: {
-                type: 'datetime'
-            },
-            yAxis: {
-                title: {
-                    text: `${sensorType} Sensor Value`
+                    // Create the chart
+                    Highcharts.chart(`container${i}`, {
+                        title: {
+                            text: `${sensorType} Data Line Graph`
+                        },
+                        xAxis: {
+                            type: 'datetime'
+                        },
+                        yAxis: {
+                            title: {
+                                text: `${sensorType} Sensor Value`
+                            }
+                        },
+                        series: [{
+                            name: `${sensorType}  Data`,
+                            data: formattedData
+                        }]
+                    });
+
                 }
-            },
-            series: [{
-                name: `${sensorType}  Data`,
-                data: formattedData
-            }]
-        });
-    </script>
+
+            </script>
 </body>
 
 </html>

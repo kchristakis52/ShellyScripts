@@ -104,10 +104,19 @@
       justify-content: space-between;
       align-items: center;
     }
+
+    header {
+      background-color: #f1f1f1;
+      text-align: center;
+      font-size: 25px;
+    }
   </style>
 </head>
 
 <body>
+  <header>
+    <h2>Devices</h2>
+  </header>
   <div class="card-container">
     <% for (let i=0; i < devices.length; i++) { %>
       <div class="card">
@@ -128,7 +137,7 @@
                 Device Controls
               </button>
               <% } %>
-                <button onclick="getDeviceSensors('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
+                <button onclick="getDeviceData('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
                   <%= "Device data" %>
                 </button>
         </div>
@@ -177,13 +186,13 @@
       window.location.href = '/device_controls?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid + '&device_type=' + device_type;
     }
 
-    function getDeviceSensors(device_id, gateway_uuid) {
+    function getDeviceData(device_id, gateway_uuid) {
       const headers = { type: 'application/json' };
       const data = JSON.stringify({ url: "sendData", gateway_uuid: gateway_uuid });
       const blob = new Blob([data], headers);
       navigator.sendBeacon('/mqtt_to_http', blob);
 
-      window.location.href = '/device_sensors?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid;
+      window.location.href = '/device_data?device_id=' + device_id + '&gateway_uuid=' + gateway_uuid;
     }
   </script>
 </body>
