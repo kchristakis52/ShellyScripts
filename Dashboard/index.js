@@ -118,7 +118,6 @@ app.get('/device_data', (req, res) => {
             rows.forEach(row => {
                 row.data = JSON.parse(row.data)
             })
-            console.log(rows)
             res.render('device_data', {
                 data_array: rows
             });

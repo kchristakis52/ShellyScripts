@@ -19,6 +19,7 @@
                 for (let i = 0; i < sensorDataArray.length; i++) {
                     sensorData = sensorDataArray[i].data;
                     sensorType = sensorDataArray[i].type;
+                    sensorType = sensorType[0].toUpperCase() + sensorType.slice(1)
                     // Convert timestamp to date format
                     const formattedData = sensorData.map(data => ({
                         x: new Date(data.timestamp * 1000),
