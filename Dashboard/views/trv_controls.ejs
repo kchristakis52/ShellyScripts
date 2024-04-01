@@ -2,8 +2,13 @@
 <html>
 
 <head>
-    <title>Homes</title>
+    <title>TRV Controls</title>
     <style>
+        * {
+            font-size: 100%;
+            font-family: 'Verdana';
+        }
+
         button {
             padding: 8px 16px;
             background-color: #4CAF50;
@@ -21,12 +26,14 @@
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             transition: 0.3s;
             border-radius: 5px;
-
+            background-color: #f9f9f9;
+            /* background-image: linear-gradient(135deg, #ffffff, #eef0f7); */
         }
 
         /* On mouse-over, add a deeper shadow */
         .card:hover {
             box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+            background-color: #e9e9e9;
         }
 
         /* Add some padding inside the card container */
@@ -43,9 +50,22 @@
         }
 
         header {
-            background-color: #f1f1f1;
             text-align: center;
             font-size: 25px;
+        }
+
+
+        body {
+            background-color: #d6d7e1;
+        }
+
+        .gauge-container {
+            position: relative;
+        }
+
+        #gaugeTempValue {
+            margin-top: 20px;
+            width: 100px;
         }
     </style>
 </head>
@@ -54,9 +74,27 @@
     <header>
         <h2>TRV Controls</h2>
     </header>
+    <div class="card">
+        <div class="container">
+            <h4>Set Value position</h4>
+            <div class="gauge-container">
+                <canvas id="gauge" width="250" height="200"></canvas>
+                <input type="range" id="gaugeTempValue" min="0" max="100" value="50" step="1" oninput="updateGauge()"
+                    onmouseup="sendNumber('<%= device_id %>', '<%= gateway_uuid %>', '/thermostats/0?pos=')">
+            </div>
+        </div>
+    </div>
+
     <script>
+        function checkStatus(response) {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response;
+        }
         function sendNumber(device_id, gateway_uuid, action_endpoint) {
-            const inputField = document.getElementById('input_' + device_id + '_' + action_endpoint);
+            console.log(device_id, gateway_uuid, action_endpoint)
+            const inputField = document.getElementById('gaugeTempValue');
             const value = inputField.value;
             const button = event.target;
             button.disabled = true;
@@ -77,6 +115,85 @@
             });
 
         }
+        const canvas = document.getElementById('gauge');
+        const ctx = canvas.getContext('2d');
+        const gaugeValueInput = document.getElementById('gaugeTempValue');
+        const gaugeRangeText = document.getElementById('gaugeRangeText');
+
+        function updateGauge() {
+            const gaugeValue = gaugeValueInput.value;
+            drawGauge(gaugeValue);
+            updateGaugeRange(gaugeValue);
+        }
+
+        function drawGauge(value) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height;
+            const radius = canvas.width / 2 - 10;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw gauge background
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+            ctx.lineWidth = 25;
+            ctx.strokeStyle = '#ddd';
+            ctx.stroke();
+
+            // Draw gauge value
+            const startAngle = Math.PI;
+            const endAngle = (value / 100) * Math.PI + startAngle;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.lineWidth = 24;
+            ctx.strokeStyle = getColor(value);
+            ctx.stroke();
+
+            // Draw pointer
+            const pointerLength = radius - 40;
+            const pointerX = centerX + pointerLength * Math.cos(endAngle);
+            const pointerY = centerY + pointerLength * Math.sin(endAngle);
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(pointerX, pointerY);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+        }
+
+        function getColor(value) {
+            if (value < 20) {
+                return '#00ff00'; // Low - Green
+            } else if (value < 40) {
+                return '#66ff33'; // Low to Moderate - Light Green
+            } else if (value < 60) {
+                return '#ffff00'; // Moderate - Yellow
+            } else if (value < 80) {
+                return '#ff9900'; // Moderate to High - Orange
+            } else {
+                return '#ff0000'; // High - Red
+            }
+        }
+
+        function updateGaugeRange(value) {
+            if (value < 20) {
+                gaugeRangeText.innerText = 'Low';
+            } else if (value < 40) {
+                gaugeRangeText.innerText = 'Low to Moderate';
+            } else if (value < 60) {
+                gaugeRangeText.innerText = 'Moderate';
+            } else if (value < 80) {
+                gaugeRangeText.innerText = 'Moderate to High';
+            } else {
+                gaugeRangeText.innerText = 'High';
+            }
+        }
+
+        // Initial draw with default value
+        updateGauge();
+
     </script>
 </body>
 
