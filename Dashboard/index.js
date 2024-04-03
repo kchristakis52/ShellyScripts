@@ -11,7 +11,7 @@ const port = 3000;
 // Create a connection to the SQLite database
 const db = new sqlite3.Database('gateways.db');
 
-const mqtt_server_url = 'mqtt://192.168.1.3'
+const mqtt_server_url = 'mqtt://192.168.1.2'
 const client = mqtt.connect(mqtt_server_url);
 client.on('connect', () => {
     console.log('Connected to MQTT');
