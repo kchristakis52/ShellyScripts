@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TRV Controls</title>
+    <style>
+        * {
+            font-size: 100%;
+            font-family: 'Verdana';
+        }
+
+        #gauge {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #major-ticks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 5px;
+        }
+
+        #major-ticks span {
+            position: absolute;
+            font-size: 0.7em;
+            color: #afafaf;
+        }
+
+        #major-ticks span:nth-child(1) {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #major-ticks span:nth-child(2) {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #major-ticks span:nth-child(3) {
+            top: 50%;
+            right: 5px;
+            transform: translateY(-50%);
+        }
+
+        #minor-ticks {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #minor-ticks span {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            border-top: 1px solid #afafaf;
+            transform: rotate(calc((var(--i) - 1) * 9 * 1deg));
+        }
+
+        #minor-ticks::after {
+            content: '';
+            position: absolute;
+            width: 93%;
+            height: 93%;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        #minor-ticks-bottom-mask {
+            position: absolute;
+            width: 80%;
+            height: 49%;
+            bottom: 0;
+            background: #fff;
+        }
+
+        #bottom-circle {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            background: linear-gradient(#efefef, #ffffff);
+            border-radius: 50%;
+            box-shadow: inset 0 5px 5px #e7e7e7;
+        }
+
+        svg {
+            position: absolute;
+        }
+
+        svg path {
+            transition: 1s;
+        }
+
+        #center-circle {
+            position: absolute;
+            width: 170px;
+            height: 170px;
+            background: linear-gradient(180deg, #ffffff 0%, #e7ecf1 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #center-circle::before {
+            content: '';
+            position: absolute;
+            width: 145px;
+            height: 145px;
+            background: linear-gradient(0deg, #ffffff 0%, #e7ecf1 100%);
+            border-radius: 50%;
+        }
+
+        #name {
+            position: absolute;
+            font-size: 1em;
+            color: #7f7f7f;
+            font-weight: 700;
+            top: 40px;
+        }
+
+        #center-circle img {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            bottom: 20px;
+        }
+
+        #temperature {
+            position: absolute;
+            font-size: 3em;
+            color: #afafaf;
+        }
+
+        #range {
+            position: absolute;
+            width: 80%;
+            bottom: 10px;
+        }
+
+        .card {
+            /* Add shadows to create the "card" effect */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            /* background-image: linear-gradient(135deg, #ffffff, #eef0f7); */
+        }
+
+
+
+        /* Add some padding inside the card container */
+        .container {
+            padding: 2px 16px;
+        }
+
+        /* Add flex for card container */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            font-size: 25px;
+        }
+
+
+        body {
+            background-color: #d6d7e1;
+        }
+
+        .gauge-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #gaugePosValue {
+            margin-top: 20px;
+            /* width: 100px; */
+        }
+
+        #posGauge {
+            width: 250;
+            height: 200;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2>TRV Controls</h2>
+    </header>
+    <div class="card-container">
+        <div class="card">
+            <div class="container">
+                <h4>Set Valve Position</h4>
+                <div class="gauge-container">
+                    <span id="gaugeRangeText">50%</span>
+                    <canvas id="posGauge" width="250" height="200"></canvas>
+                    <input type="range" id="gaugePosValue" min="0" max="100" value="50" step="1" oninput="updateGauge()"
+                        onmouseup="sendNumber('<%= device_id %>', '<%= gateway_uuid %>', '/thermostats/0?pos=')">
+                </div>
+            </div>
+        </div>
+        <div id="gauge">
+            <div id="major-ticks">
+                <span>4℃</span>
+                <span>17.5℃</span>
+                <span>31℃</span>
+            </div>
+            <div id="minor-ticks">
+                <span title="--i:1"></span>
+                <span title="--i:2"></span>
+                <span title="--i:3"></span>
+                <span title="--i:4"></span>
+                <span title="--i:5"></span>
+                <span title="--i:6"></span>
+                <span title="--i:7"></span>
+                <span title="--i:8"></span>
+                <span title="--i:9"></span>
+                <span title="--i:10"></span>
+                <span title="--i:11"></span>
+                <span title="--i:12"></span>
+                <span title="--i:13"></span>
+                <span title="--i:14"></span>
+                <span title="--i:15"></span>
+                <span title="--i:16"></span>
+                <span title="--i:17"></span>
+                <span title="--i:18"></span>
+                <span title="--i:19"></span>
+                <span title="--i:20"></span>
+                <span title="--i:21"></span>
+                <span title="--i:22"></span>
+                <span title="--i:23"></span>
+                <span title="--i:24"></span>
+                <span title="--i:25"></span>
+                <span title="--i:26"></span>
+                <span title="--i:27"></span>
+            </div>
+            <div id="minor-ticks-bottom-mask"></div>
+            <div id="bottom-circle"></div>
+            <svg version="1.1" baseProfile="full" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
+                <linearGradient id="gradient" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0%" stop-color="#b96e85" />
+                    <stop offset="100%" stop-color="#ae69bb" />
+                </linearGradient>
+                <path d="M5 95 A80 80 0 0 1 185 95" stroke=url(#gradient) fill="none" stroke-width="10"
+                    stroke-linecap="round" stroke-dasharray="0 282.78" />
+            </svg>
+            <div id="center-circle">
+                <span id="name">HEATING</span>
+                <span id="temperature">18</span>
+                <!-- <img src="leaf.svg" alt=""> -->
+            </div>
+            <input type="range" id="range" max="31" min="4" value="17" oninput="temp_change()"
+                onmouseup="sendNumber('<%= device_id %>', '<%= gateway_uuid %>', '/settings/thermostats/0?target_t=')">
+        </div>
+    </div>
+
+    <script>
+        function checkStatus(response) {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response;
+        }
+        function sendNumber(device_id, gateway_uuid, action_endpoint) {
+            console.log(device_id, gateway_uuid, action_endpoint)
+            const inputField = event.target;
+            const value = inputField.value;
+            const button = event.target;
+            inputField.disabled = true;
+
+            fetch('/mqtt_to_http', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: `http://${device_id}.local${action_endpoint}${value}`, gateway_uuid: gateway_uuid })
+            }).then(checkStatus).then(response => response.json()).then(data => {
+                console.log(data);
+                // do something
+            }).catch(error => {
+                console.error('Error:', error);
+            }).finally(() => {
+                inputField.disabled = false; // Enable the button again
+            });
+
+        }
+        const canvas = document.getElementById('posGauge');
+        const ctx = canvas.getContext('2d');
+        const gaugeValueInput = document.getElementById('gaugePosValue');
+        // const gaugeRangeText = document.getElementById('gaugeRangeText');
+
+        function updateGauge() {
+            const gaugeValue = gaugeValueInput.value;
+            drawGauge(gaugeValue);
+            updateGaugeRange(gaugeValue);
+        }
+
+        function drawGauge(value) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height;
+            const radius = canvas.width / 2 - 10;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw gauge background
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+            ctx.lineWidth = 25;
+            ctx.strokeStyle = '#ddd';
+            ctx.stroke();
+
+            // Draw gauge value
+            const startAngle = Math.PI;
+            const endAngle = (value / 100) * Math.PI + startAngle;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.lineWidth = 24;
+            ctx.strokeStyle = getColor(value);
+            ctx.stroke();
+
+            // Draw pointer
+            const pointerLength = radius - 40;
+            const pointerX = centerX + pointerLength * Math.cos(endAngle);
+            const pointerY = centerY + pointerLength * Math.sin(endAngle);
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(pointerX, pointerY);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+        }
+
+        function getColor(value) {
+            if (value < 20) {
+                return '#00ff00'; // Low - Green
+            } else if (value < 40) {
+                return '#66ff33'; // Low to Moderate - Light Green
+            } else if (value < 60) {
+                return '#ffff00'; // Moderate - Yellow
+            } else if (value < 80) {
+                return '#ff9900'; // Moderate to High - Orange
+            } else {
+                return '#ff0000'; // High - Red
+            }
+        }
+
+        function updateGaugeRange(value) {
+            gaugeRangeText.innerText = `${value}%`;
+        }
+
+        const arc = document.querySelector("svg path");
+        const temperature = document.getElementById("temperature");
+        const range = document.getElementById("range");
+
+        function temp_change() {
+            temperature.textContent = range.value;
+            const arc_length = arc.getTotalLength();
+            const step = arc_length / (range.max - range.min);
+            const value = (range.value - range.min) * step;
+            arc.style.strokeDasharray = `${value} ${arc_length - value}`;
+        }
+        updateGauge();
+        temp_change();
+    </script>
+</body>
+
+</html>
