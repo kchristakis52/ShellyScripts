@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
   <title>Devices</title>
   <style>
-    * {
-      font-size: 100%;
-      font-family: 'Verdana';
-    }
-
     button {
       padding: 8px 16px;
       background-color: #4CAF50;
@@ -21,7 +21,6 @@
       background-color: #45a049;
     }
 
-    /* The switch - the box around the slider */
     .switch {
       position: relative;
       display: inline-block;
@@ -29,14 +28,12 @@
       height: 34px;
     }
 
-    /* Hide default HTML checkbox */
     .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
 
-    /* The slider */
     .slider {
       position: absolute;
       cursor: pointer;
@@ -83,49 +80,11 @@
     .slider.round:before {
       border-radius: 50%;
     }
-
-    .card {
-      /* Add shadows to create the "card" effect */
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-      transition: 0.3s;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-      /* background-image: linear-gradient(135deg, #ffffff, #eef0f7); */
-    }
-
-    /* On mouse-over, add a deeper shadow */
-    .card:hover {
-      box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-      background-color: #e9e9e9;
-    }
-
-    body {
-      background-color: #d6d7e1;
-    }
-
-    /* Add some padding inside the card container */
-    .container {
-      padding: 2px 16px;
-    }
-
-    /* Add flex for card container */
-    .card-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header {
-      background-color: #d6d7e1;
-      text-align: center;
-      font-size: 25px;
-    }
   </style>
 </head>
 
-<body>
-  <header>
+<body class="bg-light text-dark">
+  <!-- <header>
     <h2>Devices</h2>
   </header>
   <div class="card-container">
@@ -154,8 +113,48 @@
         </div>
       </div>
       <% } %>
+  </div> -->
+
+  <div class="container mx-auto">
+    <h1>Devices</h1>
+    <div class="row row-gap-3">
+      <% for (let i=0; i < devices.length; i++) { %>
+        <div class="col-sm-4">
+          <div class="card text-center" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">
+                <%= devices[i].device_name %>
+              </h5>
+            </div>
+            <div class="card-footer">
+              <% if (devices[i].device_type==='plug' ) { %>
+                <label class="switch">
+                  <input type="checkbox"
+                    onclick="preventCheckboxCheck(event, '<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].actions[0].action_endpoint %>')">
+                  <span class="slider round"></span>
+                </label>
+                <% } else if (devices[i].device_type==='trv' ) { %>
+                  <button type="button" class="btn btn-primary"
+                    onclick="getDeviceControls('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].device_type %>')">
+                    Device Controls
+                  </button>
+                  <% } %>
+                    <button type="button" class="btn btn-primary"
+                      onclick="getDeviceData('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
+                      <%= "Device data" %>
+                    </button>
+            </div>
+          </div>
+        </div>
+        <% } %>
+    </div>
   </div>
 
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
   <script>
     function checkStatus(response) {
       if (!response.ok) {
