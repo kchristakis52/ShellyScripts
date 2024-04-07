@@ -8,7 +8,7 @@
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
   <title>Devices</title>
-  <style>
+  <!-- <style>
     button {
       padding: 8px 16px;
       background-color: #4CAF50;
@@ -80,41 +80,22 @@
     .slider.round:before {
       border-radius: 50%;
     }
+  </style> -->
+  <style>
+    /* Custom CSS for circular button */
+    .btn-circle {
+      width: 30px;
+      height: 30px;
+      padding: 6px 0px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.42857;
+    }
   </style>
 </head>
 
 <body class="bg-light text-dark">
-  <!-- <header>
-    <h2>Devices</h2>
-  </header>
-  <div class="card-container">
-    <% for (let i=0; i < devices.length; i++) { %>
-      <div class="card">
-        <div class="container">
-          <h4><b>
-              <%= devices[i].device_name %>
-            </b>
-          </h4>
-          <% if (devices[i].device_type==='plug' ) { %>
-            <label class="switch">
-              <input type="checkbox"
-                onclick="preventCheckboxCheck(event, '<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].actions[0].action_endpoint %>')">
-              <span class="slider round"></span>
-            </label>
-            <% } else if (devices[i].device_type==='trv' ) { %>
-              <button
-                onclick="getDeviceControls('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].device_type %>')">
-                Device Controls
-              </button>
-              <% } %>
-                <button onclick="getDeviceData('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>')">
-                  <%= "Device data" %>
-                </button>
-        </div>
-      </div>
-      <% } %>
-  </div> -->
-
   <div class="container mx-auto">
     <h1>Devices</h1>
     <div class="row row-gap-3">
@@ -128,7 +109,7 @@
             </div>
             <div class="card-footer">
               <% if (devices[i].device_type==='plug' ) { %>
-                <button type="button" class="btn btn-primary btn-circle"
+                <button type="button" class="btn btn-primary btn-circle btn-lg"
                   onclick="toggleSwitch('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].actions[0].action_endpoint %>', '<%= devices[i].device_name %>' )">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-power"
                     viewBox="0 0 16 16">
@@ -171,6 +152,7 @@
       }
       return response;
     }
+
     function showToast(message) {
       var toastContainer = document.getElementById('toastContainer');
       var toast = document.createElement('div');
@@ -214,6 +196,7 @@
           showToast(`${device_name} is turned on`);
         } else {
           switch_button.checked = false;
+
           showToast(`${device_name} is turned off`);
         }
       }).catch(error => {
