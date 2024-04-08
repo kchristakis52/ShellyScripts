@@ -42,7 +42,12 @@
                         series: [{
                             name: `${sensorType}  Data`,
                             data: formattedData
-                        }]
+                        }],
+                        plotOptions: {
+                            series: {
+                                turboThreshold: 0
+                            }
+                        }
                     });
 
                 }

@@ -201,6 +201,7 @@
         }
       }).catch(error => {
         console.error('Error:', error);
+        showToast(`Error: ${error}`);
       }).finally(() => {
         switch_button.disabled = false;
       });
