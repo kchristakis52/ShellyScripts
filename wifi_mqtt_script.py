@@ -1,6 +1,8 @@
 import json
+from time import sleep
 import requests
 import sys
+from script_dict import d
 
 
 def set_wifi(ssid: str, password: str, device_ip: str = "192.168.33.1") -> bool:
@@ -11,6 +13,14 @@ def set_wifi(ssid: str, password: str, device_ip: str = "192.168.33.1") -> bool:
     res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
     print(res.json())
     return res.json()["restart_required"]
+
+
+def update_firmware(device_ip: str = "192.168.33.1"):
+    url = f"http://{device_ip}/rpc/Shelly.Update"
+    req = {"stage": "stable"}
+    req_data = json.dumps(req, ensure_ascii=False)
+    res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
+    print(res.json())
 
 
 def set_mqtt(
@@ -66,6 +76,20 @@ def autostart_script(host, id_) -> bool:
     return res.json()["restart_required"]
 
 
+def get_local_hostname(device_ip) -> str:
+    url = f"http://{device_ip}/rpc/Shelly.GetDeviceInfo"
+    res = requests.get(url, timeout=2)
+    return res.json()["id"]
+
+
+def close_access_point(device_ip) -> bool:
+    url = f"http://{device_ip}/rpc/Wifi.SetConfig"
+    req = {"config": {"ap": {"enable": False}}}
+    req_data = json.dumps(req, ensure_ascii=False)
+    res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
+    return res.json()["restart_required"]
+
+
 def main(
     ssid,
     wifi_password,
@@ -74,21 +98,22 @@ def main(
     mqtt_password,
     mqtt_topic_prefix,
     script_topic,
-    script_file_path,
+    script_name,
     device_ip="192.168.33.1",
 ):
     set_wifi(ssid, wifi_password, device_ip)
-    set_mqtt(mqtt_host, mqtt_user, mqtt_password, mqtt_topic_prefix, device_ip)
-    script_id = create_script(device_ip, script_file_path)
+    update_firmware(device_ip)
 
-    with open(
-        script_file_path,
-        mode="r",
-        encoding="utf-8",
-    ) as f:
-        code = f.read()
-        code = code.replace("{topic_placeholder}", script_topic)
-        print(code)
+    # wait for update to finish
+    sleep(60)
+
+    set_mqtt(mqtt_host, mqtt_user, mqtt_password, mqtt_topic_prefix, device_ip)
+    script_id = create_script(device_ip, script_name)
+
+    # read from dictionary
+    code = d[script_name]
+    code = code.replace("{topic_placeholder}", script_topic)
+    print(code)
 
     pos = 0
     append = False
@@ -98,8 +123,12 @@ def main(
         put_chunk(device_ip, script_id, chunk, append)
         pos += len(chunk)
         append = True
+    autostart_script(device_ip, script_id)
 
-    restart_required = autostart_script(device_ip, script_id)
+    print(get_local_hostname(device_ip))
+
+    restart_required = close_access_point(device_ip)
+
     if restart_required:
         print("restarting")
         requests.post(f"http://{device_ip}/rpc/Shelly.Reboot")
@@ -107,12 +136,13 @@ def main(
 
 if __name__ == "__main__":
     main(
-        sys.argv[1],
-        sys.argv[2],
-        sys.argv[3],
-        sys.argv[4],
-        sys.argv[5],
-        sys.argv[6],
-        sys.argv[7],
-        sys.argv[8],
+        ssid="ssid",
+        wifi_password="pass",
+        mqtt_host="mqtt_host",
+        mqtt_user=None,
+        mqtt_password=None,
+        mqtt_topic_prefix=None,
+        script_topic="topic_name",
+        script_name="3EM",
+        device_ip="shellyplusplugs-3ce90e2fbe5c.local",
     )
