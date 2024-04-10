@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        Data Line Graph
+    </title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+
+<body>
+    <% for (let [sensorType, sensorData] of Object.entries(data_object)) { %>
+
+        <div id="container<%=sensorType%>"></div>
+        <% } %>
+            <script>
+                const data_object = JSON.parse('<%- JSON.stringify(data_object) %>');
+
+                for (let [sensorType, sensorData] of Object.entries(data_object)) {
+                    // Capitalize the first letter of the sensor type
+                    // sensorType = sensorType[0].toUpperCase() + sensorType.slice(1)
+                    // Convert timestamp to date format
+                    const formattedData = sensorData.map(data => ({
+                        x: new Date(data.timestamp * 1000),
+                        y: data.value
+                    }));
+
+                    // Create the chart
+                    Highcharts.chart(`container${sensorType}`, {
+                        title: {
+                            text: `${sensorType} Data Line Graph`
+                        },
+                        xAxis: {
+                            type: 'datetime'
+                        },
+                        yAxis: {
+                            title: {
+                                text: `${sensorType} Sensor Value`
+                            }
+                        },
+                        series: [{
+                            name: `${sensorType}  Data`,
+                            data: formattedData
+                        }],
+                        plotOptions: {
+                            series: {
+                                turboThreshold: 0
+                            }
+                        }
+                    });
+
+                }
+
+            </script>
+</body>
+
+</html>
