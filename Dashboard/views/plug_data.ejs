@@ -21,9 +21,15 @@
                     // sensorType = sensorType[0].toUpperCase() + sensorType.slice(1)
                     // Convert timestamp to date format
                     const formattedData = sensorData.map(data => ({
-                        x: new Date(data.timestamp * 1000),
+                        // x: new Date(data.timestamp * 1000),
+                        x: data.timestamp * 1000,
                         y: data.value
                     }));
+                    Highcharts.setOptions({
+                        time: {
+                            timezone: 'Europe/Athens'
+                        }
+                    });
 
                     // Create the chart
                     Highcharts.chart(`container${sensorType}`, {
