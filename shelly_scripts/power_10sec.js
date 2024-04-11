@@ -1,4 +1,4 @@
-let id= Shelly.getDeviceInfo().id;
+let id = Shelly.getDeviceInfo().id;
 print(id);
 Timer.set(10000, true, function () {
     Shelly.call(
@@ -7,14 +7,14 @@ Timer.set(10000, true, function () {
             //for more than one switch devices use the respective id
             id: 0,
         },
-        function (result, error_code, error_message) {            
+        function (result, error_code, error_message) {
             let unixtime = Shelly.getComponentStatus("sys").unixtime;
             let mqtt_mess = {
-                apower: result.apower,
+                value: result.apower,
                 timestamp: unixtime
-            };          
+            };
             print(JSON.stringify(mqtt_mess))
-            MQTT.publish("shellies/"+id+"/relay/0/power", JSON.stringify(mqtt_mess), 0, false);            
+            MQTT.publish("shellies/" + id + "/relay/0/power", JSON.stringify(mqtt_mess), 0, false);
         }
     );
 });
