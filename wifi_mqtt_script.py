@@ -1,5 +1,7 @@
+import hashlib
 import json
 from time import sleep
+from requests.auth import HTTPDigestAuth
 import requests
 import sys
 from script_dict import d
@@ -20,7 +22,6 @@ def update_firmware(device_ip: str = "192.168.33.1"):
     req = {"stage": "stable"}
     req_data = json.dumps(req, ensure_ascii=False)
     res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
-    print(res.json())
 
 
 def set_mqtt(
@@ -67,7 +68,7 @@ def put_chunk(host, id_, data, append=True):
     res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
 
 
-def autostart_script(host, id_) -> bool:
+def autostart_script(host: str, id_) -> bool:
     """Start the script on the device"""
     url = f"http://{host}/rpc/Script.SetConfig"
     req = {"id": id_, "config": {"enable": True}}
@@ -76,30 +77,47 @@ def autostart_script(host, id_) -> bool:
     return res.json()["restart_required"]
 
 
-def get_local_hostname(device_ip) -> str:
+def get_local_hostname(device_ip: str) -> str:
     url = f"http://{device_ip}/rpc/Shelly.GetDeviceInfo"
     res = requests.get(url, timeout=2)
     return res.json()["id"]
 
 
-def close_access_point(device_ip) -> bool:
+def close_access_point(device_ip: str, front_end_password: str | None = None) -> bool:
     url = f"http://{device_ip}/rpc/Wifi.SetConfig"
     req = {"config": {"ap": {"enable": False}}}
     req_data = json.dumps(req, ensure_ascii=False)
-    res = requests.post(url, data=req_data.encode("utf-8"), timeout=2)
+    res = requests.post(
+        url,
+        data=req_data.encode("utf-8"),
+        timeout=5,
+        auth=HTTPDigestAuth("admin", front_end_password),
+    )
     return res.json()["restart_required"]
 
 
+def set_authentication(
+    device_id: str, password: str, device_ip: str = "192.168.1.33"
+) -> None:
+    url = f"http://{device_ip}/rpc/Shelly.SetAuth"
+    data = f"admin:{device_id}:{password}"
+    sha_signature = hashlib.sha256(data.encode()).hexdigest()
+    req = {"user": "admin", "realm": device_id, "ha1": sha_signature}
+    req_data = json.dumps(req, ensure_ascii=False)
+    res = requests.post(url, data=req_data.encode("utf-8"), timeout=10)
+
+
 def main(
-    ssid,
-    wifi_password,
-    mqtt_host,
-    mqtt_user,
-    mqtt_password,
-    mqtt_topic_prefix,
-    script_topic,
-    script_name,
-    device_ip="192.168.33.1",
+    ssid: str,
+    wifi_password: str,
+    mqtt_host: str,
+    mqtt_user: str,
+    mqtt_password: str,
+    mqtt_topic_prefix: str,
+    script_topic: str,
+    script_name: str,
+    front_end_password: str,
+    device_ip: str = "192.168.33.1",
 ):
     set_wifi(ssid, wifi_password, device_ip)
     update_firmware(device_ip)
@@ -125,24 +143,32 @@ def main(
         append = True
     autostart_script(device_ip, script_id)
 
-    print(get_local_hostname(device_ip))
+    local_hostname = get_local_hostname(device_ip)
+    set_authentication(local_hostname, front_end_password, device_ip)
 
     restart_required = close_access_point(device_ip)
 
     if restart_required:
         print("restarting")
-        requests.post(f"http://{device_ip}/rpc/Shelly.Reboot")
+        requests.post(
+            f"http://{device_ip}/rpc/Shelly.Reboot",
+            HTTPDigestAuth("admin", front_end_password),
+        )
 
 
 if __name__ == "__main__":
-    main(
-        ssid="ssid",
-        wifi_password="pass",
-        mqtt_host="mqtt_host",
-        mqtt_user=None,
-        mqtt_password=None,
-        mqtt_topic_prefix=None,
-        script_topic="topic_name",
-        script_name="3EM",
-        device_ip="shellyplusplugs-3ce90e2fbe5c.local",
-    )
+    # main(
+    #     ssid="ssid",
+    #     wifi_password="pass",
+    #     mqtt_host="mqtt_host",
+    #     mqtt_user=None,
+    #     mqtt_password=None,
+    #     mqtt_topic_prefix=None,
+    #     script_topic="topic_name",
+    #     script_name="3EM",
+    #     device_ip="shellyplusplugs-3ce90e2fbe5c.local",
+    # )
+    # set_authentication(
+    #     "shellyplusplugs-3ce90e2fbe5c", "root", "shellyplusplugs-3ce90e2fbe5c.local"
+    # )
+    close_access_point("shellyplusplugs-3ce90e2fbe5c.local")
