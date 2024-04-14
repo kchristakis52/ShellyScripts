@@ -19,6 +19,7 @@
       justify-content: center;
       align-items: center;
     }
+
     #gauge2 {
       position: relative;
       width: 300px;
@@ -175,9 +176,9 @@
 
 
 <body class="bg-light text-dark">
-  <div class="container mx-auto">
+  <div class="container mx-auto row-gap-3">
     <h1>TRV Data</h1>
-    <div class="row row-gap-3 justify-content-center align-items-center">
+    <div class="row justify-content-center align-items-center">
       <div class="col-md-4">
         <div class="card" id="gauge">
           <div id="major-ticks">
@@ -264,7 +265,9 @@
 
         </div>
       </div>
-      <div class="col-md-4">
+    </div>
+    <div class="row justify-content-center align-items-center">
+      <div class="col-auto ">
         <div class="card">
           <div class="card-body">
             <div id="chart-container"></div>
@@ -312,9 +315,14 @@
     }
 
     const formattedTemperatureData = data_object["temperature"].map(data => ({
-      x: new Date(data.timestamp * 1000),
+      x: data.timestamp * 1000,
       y: data.value
     }));
+    Highcharts.setOptions({
+      time: {
+        timezone: 'Europe/Athens'
+      }
+    });
     // Create the chart
     Highcharts.chart(`chart-container`, {
       title: {
@@ -329,7 +337,7 @@
         }
       },
       series: [{
-        showInLegend: false,   
+        showInLegend: false,
         name: `Room Temperature Data`,
         data: formattedTemperatureData
       }],
