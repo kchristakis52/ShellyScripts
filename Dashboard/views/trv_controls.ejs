@@ -293,10 +293,13 @@
 
         function checkStatus(response) {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                });
             }
             return response;
         }
+
         function sendNumber(device_id, gateway_uuid, action_endpoint) {
             // console.log(device_id, gateway_uuid, action_endpoint)
             const inputField = event.target;
@@ -314,8 +317,8 @@
                 console.log(data);
                 showToast(`Successfully set the value to ${value}`)
             }).catch(error => {
-                console.error('Error:', error);
-                showToast(`Error: ${error}`);
+                console.error(error);
+                showToast(error);
             }).finally(() => {
                 inputField.disabled = false; // Enable the button again
             });

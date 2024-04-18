@@ -148,7 +148,9 @@
   <script>
     function checkStatus(response) {
       if (!response.ok) {
-        throw new Error(response.statusText);
+        return response.text().then(errorMessage => {
+          throw new Error(errorMessage);
+        });
       }
       return response;
     }
@@ -200,8 +202,8 @@
           showToast(`${device_name} is turned off`);
         }
       }).catch(error => {
-        console.error('Error:', error);
-        showToast(`Error: ${error}`);
+        console.error(error);
+        showToast(error);
       }).finally(() => {
         switch_button.disabled = false;
       });
