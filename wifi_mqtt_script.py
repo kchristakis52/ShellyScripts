@@ -116,6 +116,7 @@ def main(
     mqtt_topic_prefix: str,
     script_topic: str,
     script_name: str,
+    script_upadte_period: str,
     front_end_password: str,
     device_ip: str = "192.168.33.1",
 ):
@@ -131,6 +132,7 @@ def main(
     # read from dictionary
     code = d[script_name]
     code = code.replace("{topic_placeholder}", script_topic)
+    code = code.replace("{timer_period_placeholder}", script_upadte_period)
     print(code)
 
     pos = 0

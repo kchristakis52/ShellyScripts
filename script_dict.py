@@ -69,8 +69,8 @@ function sendMQTTMessage() {
     let mqtt_message = Object.assign({}, EM, EMData, location);
     delete mqtt_message.id
     delete mqtt_message.user_calibrated_phase
-    MQTT.publish("shellies/3EM", JSON.stringify(mqtt_message), 0, false);
+    MQTT.publish("shellies/{topic_placeholder}/3EM", JSON.stringify(mqtt_message), 0, false);
 }
 
-Timer.set(1000, true, sendMQTTMessage);"""
+Timer.set({timer_period_placeholder}, true, sendMQTTMessage);"""
 }
