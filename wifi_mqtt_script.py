@@ -114,7 +114,6 @@ def main(
     mqtt_user: str,
     mqtt_password: str,
     mqtt_topic_prefix: str,
-    script_topic: str,
     script_name: str,
     script_upadte_period: str,
     front_end_password: str,
@@ -131,7 +130,6 @@ def main(
 
     # read from dictionary
     code = d[script_name]
-    code = code.replace("{topic_placeholder}", script_topic)
     code = code.replace("{timer_period_placeholder}", script_upadte_period)
     print(code)
 
@@ -166,7 +164,6 @@ if __name__ == "__main__":
     #     mqtt_user=None,
     #     mqtt_password=None,
     #     mqtt_topic_prefix=None,
-    #     script_topic="topic_name",
     #     script_name="3EM",
     #     device_ip="shellyplusplugs-3ce90e2fbe5c.local",
     # )
