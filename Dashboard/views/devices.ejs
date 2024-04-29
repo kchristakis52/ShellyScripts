@@ -110,7 +110,7 @@
             <div class="card-footer">
               <% if (devices[i].device_type==='plug' ) { %>
                 <button type="button" class="btn btn-primary btn-circle btn-lg"
-                  onclick="toggleSwitch('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '<%= devices[i].actions[0].action_endpoint %>', '<%= devices[i].device_name %>' )">
+                  onclick="toggleSwitch('<%= devices[i].device_id %>', '<%= devices[i].gateway_uuid %>', '/relay/0?turn=toggle', '<%= devices[i].device_name %>' )">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-power"
                     viewBox="0 0 16 16">
                     <path d="M7.5 1v7h1V1z" />
@@ -182,7 +182,7 @@
 
 
     function toggleSwitch(device_id, gateway_uuid, action_endpoint, device_name) {
-      const switch_button = event.target;
+      const switch_button = event.currentTarget;
       switch_button.disabled = true; // Disable the switch_button to prevent multiple clicks
 
       fetch('/mqtt_to_http', {
@@ -194,24 +194,28 @@
       }).then(checkStatus).then(response => response.json()).then(data => {
         console.log(data);
         if (data.ison) {
-          switch_button.checked = true;
+          switch_button.classList.remove('btn-primary');
+          switch_button.classList.remove('btn-danger');
+          switch_button.classList.remove('btn-warning');
+          switch_button.classList.add('btn-success');
           showToast(`${device_name} is turned on`);
         } else {
-          switch_button.checked = false;
-
+          switch_button.classList.remove('btn-primary');
+          switch_button.classList.remove('btn-success');
+          switch_button.classList.remove('btn-warning');
+          switch_button.classList.add('btn-danger');
           showToast(`${device_name} is turned off`);
         }
       }).catch(error => {
         console.error(error);
+        switch_button.classList.remove('btn-primary');
+        switch_button.classList.remove('btn-success');
+        switch_button.classList.remove('btn-danger');
+        switch_button.classList.add('btn-warning');
         showToast(error);
       }).finally(() => {
-        switch_button.disabled = false;
+        switch_button.disabled = false; // Enable the switch_button after the fetch request is completed
       });
-    }
-
-    function preventCheckboxCheck(event, device_id, gateway_uuid, action_endpoint) {
-      event.preventDefault();
-      toggleSwitch(device_id, gateway_uuid, action_endpoint);
     }
 
     function getDeviceControls(device_id, gateway_uuid, device_type) {
