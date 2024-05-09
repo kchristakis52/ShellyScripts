@@ -17,6 +17,13 @@ function processMessage(topic, message, userdata) {
             }
         );
     }
+    let unixtime = Shelly.getComponentStatus("sys").unixtime;
+    let switch_status_value = Shelly.getComponentStatus("switch:0").output
+    let mqtt_mess = {
+        switch_status: switch_status_value,
+        timestamp: unixtime
+    };
+    MQTT.publish("shellies/" + id + "/relay/0", JSON.stringify(mqtt_mess), 0, false);
 
 }
 
