@@ -1,5 +1,5 @@
 let id = Shelly.getDeviceInfo().id;
-let power_day = 0;
+let power_array = [];
 let period = 10000;
 let iteration = 0;
 // 60000ms = 1 minute
@@ -12,19 +12,19 @@ Timer.set(period, true, function () {
             id: 0,
         },
         function (result, error_code, error_message) {
-            power_day += result.apower;
+            let unixtime = Shelly.getComponentStatus("sys").unixtime;
+            let mqtt_mess = {
+                value: result.apower,
+                timestamp: unixtime
+            };
+            power_array.push(mqtt_mess);
             iteration += 1;
 
             if (iteration >= max_iterations) {
-                let unixtime = Shelly.getComponentStatus("sys").unixtime;
-                let mqtt_mess = {
-                    value: power_day,
-                    timestamp: unixtime
-                };
-                power_day = 0;
+                print(JSON.stringify(power_array))
+                MQTT.publish("shellies/" + id + "/relay/0/poweragg", JSON.stringify(power_array), 0, false);
+                power_array = [];
                 iteration = 0;
-                print(mqtt_mess)
-                MQTT.publish("shellies/" + id + "/relay/0/poweragg", JSON.stringify(mqtt_mess), 0, false);
             }
 
         }
