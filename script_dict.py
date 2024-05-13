@@ -1,48 +1,5 @@
 d = {
-    "3EM": """// Message to be sent to the MQTT broker example:
-// mqtt_message = {
-//     "timestamp": "20:11:34",
-//     "id": 0,
-//     "a_total_act_energy": 0,
-//     "a_total_act_ret_energy": 0,
-//     "b_total_act_energy": 0,
-//     "b_total_act_ret_energy": 0,
-//     "c_total_act_energy": 0,
-//     "c_total_act_ret_energy": 0,
-//     "total_act": 0,
-//     "total_act_ret": 0,
-//     "a_current": 4.029,
-//     "a_voltage": 236.1,
-//     "a_act_power": 951.2,
-//     "a_aprt_power": 951.9,
-//     "a_pf": 1,
-//     "a_freq": 50,
-//     "b_current": 4.027,
-//     "b_voltage": 236.201,
-//     "b_act_power": -951.1,
-//     "b_aprt_power": 951.8,
-//     "b_pf": 1,
-//     "b_freq": 50,
-//     "c_current": 3.03,
-//     "c_voltage": 236.402,
-//     "c_active_power": 715.4,
-//     "c_aprt_power": 716.2,
-//     "c_pf": 1,
-//     "c_freq": 50,
-//     "n_current": 11.029,
-//     "total_current": 11.083,
-//     "total_act_power": 2484.782,
-//     "total_aprt_power": 2486.7,
-//     "user_calibrated_phase": [],
-//     "errors": [
-//         "phase_sequence"
-//     ],
-//     "tz": "Europe/Sofia",
-//     "lat": 42.6534,
-//     "lon": 23.31119
-// }
-
-function createTimestamp() {
+    "3_phase": """function createTimestamp() {
     let myDate = new Date();
     let year = myDate.getFullYear();
     let month = padZero(myDate.getMonth() + 1);
@@ -70,32 +27,11 @@ function sendMQTTMessage() {
     let mqtt_message = Object.assign({}, EM, EMData, location);
     delete mqtt_message.id
     delete mqtt_message.user_calibrated_phase
-    MQTT.publish("shellies/" + topic_prefix + "/3EM", JSON.stringify(mqtt_message), 0, false);
+    MQTT.publish("shellies/" + topic_prefix + "/3EM/data", JSON.stringify(mqtt_message), 0, false);
 }
 
-Timer.set({timer_period_placeholder}, true, sendMQTTMessage);""",
-    "EM": """// Message to be sent to the MQTT broker example:
-// mqtt_message = {
-//     "id": 0,
-//     "voltage": 236.1,
-//     "current": 4.029,
-//     "act_power": 951.2,
-//     "aprt_power": 951.9,
-//     "pf": 1,
-//     "freq": 50,
-//     "errors": [
-//         "out_of_range:current"
-//     ],
-//     "total_act_energy": 0,
-//     "total_act_ret_energy": 0,
-//     "timestamp": "20:11:34",
-//     "tz": "Europe/Sofia",
-//     "lat": 42.6534,
-//     "lon": 23.31119
-
-// }
-
-function createTimestamp() {
+Timer.set({ timer_period_placeholder }, true, sendMQTTMessage);""",
+    "single_phase": """function createTimestamp() {
     let myDate = new Date();
     let year = myDate.getFullYear();
     let month = padZero(myDate.getMonth() + 1);
@@ -115,6 +51,7 @@ function padZero(number) {
 
 
 function sendMQTTMessage(sensor_id) {
+    let topic_prefix = Shelly.getComponentConfig("MQTT").topic_prefix;
     let EM1 = Shelly.getComponentStatus("EM1", sensor_id);
     let EM1Data = Shelly.getComponentStatus("EM1Data", sensor_id);
     EM1.timestamp = createTimestamp();
@@ -122,14 +59,10 @@ function sendMQTTMessage(sensor_id) {
     let mqtt_message = Object.assign({}, EM1, EM1Data, location);
     delete mqtt_message.calibration
     delete mqtt_message.id
-    if (EM1.id == 0) {
-        MQTT.publish("shellies/EM/filippas", JSON.stringify(mqtt_message), 0, false);
-    } else {
-        MQTT.publish("shellies/thermosifonas/filippas", JSON.stringify(mqtt_message), 0, false);
-    }
+    MQTT.publish("shellies/" + topic_prefix + "/EM/relay/" + sensor_id + "/data", JSON.stringify(mqtt_message), 0, false);
 }
 
-Timer.set({timer_period_placeholder}, true, function () {
+Timer.set(1000, true, function () {
     sendMQTTMessage(0);
     sendMQTTMessage(1);
 });""",
@@ -221,4 +154,34 @@ Timer.set({timer_period_placeholder}, true, function () {
         }
     );
 });""",
+    "toggle_em_switch": """let topic_prefix = Shelly.getComponentConfig("MQTT").topic_prefix;
+function processMessage(topic, message, userdata) {
+    if (message === "toggle") {
+        Shelly.call(
+            "switch." + message,
+            {
+                id: 0,
+            }
+        );
+    }
+    else if (message === "on" || message === "off") {
+        Shelly.call(
+            "switch.set",
+            {
+                id: 0,
+                on: (message === "on")
+            }
+        );
+    }
+    let unixtime = Shelly.getComponentStatus("sys").unixtime;
+    let switch_status_value = Shelly.getComponentStatus("switch:0").output
+    let mqtt_mess = {
+        switch_status: switch_status_value,
+        timestamp: unixtime
+    };
+    MQTT.publish("shellies/" + topic_prefix + "/EM/switch/response", JSON.stringify(mqtt_mess), 0, false);
+
+}
+
+MQTT.subscribe("shellies/" + topic_prefix + "/EM/switch", processMessage)""",
 }
