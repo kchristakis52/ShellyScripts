@@ -33,6 +33,28 @@
             align-items: center;
         }
 
+        #gauge3 {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #gauge4 {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         #major-ticks {
             position: absolute;
             width: 100%;
@@ -150,7 +172,19 @@
             bottom: 20px;
         }
 
-        #temperature {
+        #target_temperature {
+            position: absolute;
+            font-size: 3em;
+            color: #afafaf;
+        }
+
+        #external_temperature {
+            position: absolute;
+            font-size: 3em;
+            color: #afafaf;
+        }
+
+        #battery {
             position: absolute;
             font-size: 3em;
             color: #afafaf;
@@ -236,9 +270,61 @@
                             stroke-linecap="round" stroke-dasharray="0 282.78" />
                     </svg>
                     <div id="center-circle">
-                        <span id="name">SET TEMPERATURE</span>
-                        <span id="temperature">18</span>
+                        <span id="name">TARG. TEMPERATURE</span>
+                        <span id="target_temperature">18</span>
+                    </div>
 
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" id="gauge3">
+                    <div id="major-ticks">
+                        <span>4℃</span>
+                        <span>17.5℃</span>
+                        <span>31℃</span>
+                    </div>
+                    <div id="minor-ticks">
+                        <span title="--i:1"></span>
+                        <span title="--i:2"></span>
+                        <span title="--i:3"></span>
+                        <span title="--i:4"></span>
+                        <span title="--i:5"></span>
+                        <span title="--i:6"></span>
+                        <span title="--i:7"></span>
+                        <span title="--i:8"></span>
+                        <span title="--i:9"></span>
+                        <span title="--i:10"></span>
+                        <span title="--i:11"></span>
+                        <span title="--i:12"></span>
+                        <span title="--i:13"></span>
+                        <span title="--i:14"></span>
+                        <span title="--i:15"></span>
+                        <span title="--i:16"></span>
+                        <span title="--i:17"></span>
+                        <span title="--i:18"></span>
+                        <span title="--i:19"></span>
+                        <span title="--i:20"></span>
+                        <span title="--i:21"></span>
+                        <span title="--i:22"></span>
+                        <span title="--i:23"></span>
+                        <span title="--i:24"></span>
+                        <span title="--i:25"></span>
+                        <span title="--i:26"></span>
+                        <span title="--i:27"></span>
+                    </div>
+                    <div id="minor-ticks-bottom-mask"></div>
+                    <div id="bottom-circle"></div>
+                    <svg version="1.1" baseProfile="full" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
+                        <linearGradient id="gradient" x1="0" x2="1" y1="0" y2="0">
+                            <stop offset="0%" stop-color="#b96e85" />
+                            <stop offset="100%" stop-color="#ae69bb" />
+                        </linearGradient>
+                        <path id="external_temperature_path" d="M5 95 A80 80 0 0 1 185 95" stroke=url(#gradient)
+                            fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 282.78" />
+                    </svg>
+                    <div id="center-circle">
+                        <span id="name">EXT. TEMPERATURE</span>
+                        <span id="external_temperature">18</span>
                     </div>
 
                 </div>
@@ -379,22 +465,32 @@
         const parsedObject = { "trv1": { "etag": "77x95+WSOG0PLZhCsYMQLFmw==", "value": "{\"hostname\":\"shellytrv-60a423db07a6\",\"valve_position\":39.9,\"target_t\":30,\"temperature\":28.6,\"battery\":73}" } }; for (const key in parsedObject) { if (parsedObject[key].hasOwnProperty('value')) { parsedObject[key].value = JSON.parse(parsedObject[key].value); } }
         console.log(parsedObject);
         const arc = document.querySelector("svg path");
-        const temperature = document.getElementById("temperature");
+        const target_temperature = document.getElementById("target_temperature");
         const arc_valve = document.getElementById('path_valve')
         const valve = document.getElementById("valve");
+        const external_temperature = document.getElementById("external_temperature");
+        const arc_external_temperature = document.getElementById("external_temperature_path")
 
 
-        function temp_change(key) {
-            const insert_value = data_object[key].value.target_t
-            temperature.textContent = insert_value
+        function target_temp_change(key) {
+            const insert_value = parsedObject[key].value.target_t
+            target_temperature.textContent = insert_value
             const arc_length = arc.getTotalLength();
             const step = arc_length / (31 - 4);
             const value = (insert_value - 4) * step;
             arc.style.strokeDasharray = `${value} ${arc_length - value}`;
         }
+        function external_temp_change(key) {
+            const insert_value = parsedObject[key].value.temperature
+            external_temperature.textContent = insert_value
+            const arc_length = arc_external_temperature.getTotalLength();
+            const step = arc_length / (31 - 4);
+            const value = (insert_value - 4) * step;
+            arc_external_temperature.style.strokeDasharray = `${value} ${arc_length - value}`;
+        }
 
         function valve_change(key) {
-            const insert_value = data_object[key].value.valve_position
+            const insert_value = parsedObject[key].value.valve_position
             valve.textContent = insert_value
             const arc_length = arc_valve.getTotalLength();
             const step = arc_length / (100);
@@ -402,17 +498,15 @@
             arc_valve.style.strokeDasharray = `${value} ${arc_length - value}`;
         }
 
-        const formattedTemperatureData = data_object["temperature"].map(data => ({
-            x: data.timestamp * 1000,
-            y: data.value
-        }));
+
 
 
         document.getElementById('dropdown').addEventListener('change', function () {
             let selectedKey = this.value;
 
-            temp_change(selectedKey)
+            target_temp_change(selectedKey)
             valve_change(selectedKey)
+            external_temp_change(selectedKey)
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
