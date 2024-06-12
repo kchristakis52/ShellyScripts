@@ -84,40 +84,7 @@
             transform: translateY(-50%);
         }
 
-        #minor-ticks {
-            position: absolute;
-            width: 80%;
-            height: 80%;
-            background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
 
-        #minor-ticks span {
-            position: absolute;
-            width: 100%;
-            height: 1px;
-            border-top: 1px solid #afafaf;
-            transform: rotate(calc((var(--i) - 1) * 9 * 1deg));
-        }
-
-        #minor-ticks::after {
-            content: '';
-            position: absolute;
-            width: 93%;
-            height: 93%;
-            background: #fff;
-            border-radius: 50%;
-        }
-
-        #minor-ticks-bottom-mask {
-            position: absolute;
-            width: 80%;
-            height: 49%;
-            bottom: 0;
-            background: #fff;
-        }
 
         #bottom-circle {
             position: absolute;
@@ -230,36 +197,6 @@
                         <span>17.5℃</span>
                         <span>31℃</span>
                     </div>
-                    <div id="minor-ticks">
-                        <span title="--i:1"></span>
-                        <span title="--i:2"></span>
-                        <span title="--i:3"></span>
-                        <span title="--i:4"></span>
-                        <span title="--i:5"></span>
-                        <span title="--i:6"></span>
-                        <span title="--i:7"></span>
-                        <span title="--i:8"></span>
-                        <span title="--i:9"></span>
-                        <span title="--i:10"></span>
-                        <span title="--i:11"></span>
-                        <span title="--i:12"></span>
-                        <span title="--i:13"></span>
-                        <span title="--i:14"></span>
-                        <span title="--i:15"></span>
-                        <span title="--i:16"></span>
-                        <span title="--i:17"></span>
-                        <span title="--i:18"></span>
-                        <span title="--i:19"></span>
-                        <span title="--i:20"></span>
-                        <span title="--i:21"></span>
-                        <span title="--i:22"></span>
-                        <span title="--i:23"></span>
-                        <span title="--i:24"></span>
-                        <span title="--i:25"></span>
-                        <span title="--i:26"></span>
-                        <span title="--i:27"></span>
-                    </div>
-                    <div id="minor-ticks-bottom-mask"></div>
                     <div id="bottom-circle"></div>
                     <svg version="1.1" baseProfile="full" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
                         <linearGradient id="gradient" x1="0" x2="1" y1="0" y2="0">
@@ -283,36 +220,7 @@
                         <span>17.5℃</span>
                         <span>31℃</span>
                     </div>
-                    <div id="minor-ticks">
-                        <span title="--i:1"></span>
-                        <span title="--i:2"></span>
-                        <span title="--i:3"></span>
-                        <span title="--i:4"></span>
-                        <span title="--i:5"></span>
-                        <span title="--i:6"></span>
-                        <span title="--i:7"></span>
-                        <span title="--i:8"></span>
-                        <span title="--i:9"></span>
-                        <span title="--i:10"></span>
-                        <span title="--i:11"></span>
-                        <span title="--i:12"></span>
-                        <span title="--i:13"></span>
-                        <span title="--i:14"></span>
-                        <span title="--i:15"></span>
-                        <span title="--i:16"></span>
-                        <span title="--i:17"></span>
-                        <span title="--i:18"></span>
-                        <span title="--i:19"></span>
-                        <span title="--i:20"></span>
-                        <span title="--i:21"></span>
-                        <span title="--i:22"></span>
-                        <span title="--i:23"></span>
-                        <span title="--i:24"></span>
-                        <span title="--i:25"></span>
-                        <span title="--i:26"></span>
-                        <span title="--i:27"></span>
-                    </div>
-                    <div id="minor-ticks-bottom-mask"></div>
+
                     <div id="bottom-circle"></div>
                     <svg version="1.1" baseProfile="full" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
                         <linearGradient id="gradient" x1="0" x2="1" y1="0" y2="0">
@@ -336,112 +244,7 @@
                         <span>50%</span>
                         <span>100%</span>
                     </div>
-                    <div id="minor-ticks">
-                        <span title="--i:1"></span>
-                        <span title="--i:2"></span>
-                        <span title="--i:3"></span>
-                        <span title="--i:4"></span>
-                        <span title="--i:5"></span>
-                        <span title="--i:6"></span>
-                        <span title="--i:7"></span>
-                        <span title="--i:8"></span>
-                        <span title="--i:9"></span>
-                        <span title="--i:10"></span>
-                        <span title="--i:11"></span>
-                        <span title="--i:12"></span>
-                        <span title="--i:13"></span>
-                        <span title="--i:14"></span>
-                        <span title="--i:15"></span>
-                        <span title="--i:16"></span>
-                        <span title="--i:17"></span>
-                        <span title="--i:18"></span>
-                        <span title="--i:19"></span>
-                        <span title="--i:20"></span>
-                        <span title="--i:21"></span>
-                        <span title="--i:22"></span>
-                        <span title="--i:23"></span>
-                        <span title="--i:24"></span>
-                        <span title="--i:25"></span>
-                        <span title="--i:26"></span>
-                        <span title="--i:27"></span>
-                        <span title="--i:28"></span>
-                        <span title="--i:29"></span>
-                        <span title="--i:30"></span>
-                        <span title="--i:31"></span>
-                        <span title="--i:32"></span>
-                        <span title="--i:33"></span>
-                        <span title="--i:34"></span>
-                        <span title="--i:35"></span>
-                        <span title="--i:36"></span>
-                        <span title="--i:37"></span>
-                        <span title="--i:38"></span>
-                        <span title="--i:39"></span>
-                        <span title="--i:40"></span>
-                        <span title="--i:41"></span>
-                        <span title="--i:42"></span>
-                        <span title="--i:43"></span>
-                        <span title="--i:44"></span>
-                        <span title="--i:45"></span>
-                        <span title="--i:46"></span>
-                        <span title="--i:47"></span>
-                        <span title="--i:48"></span>
-                        <span title="--i:49"></span>
-                        <span title="--i:50"></span>
-                        <span title="--i:51"></span>
-                        <span title="--i:52"></span>
-                        <span title="--i:53"></span>
-                        <span title="--i:54"></span>
-                        <span title="--i:55"></span>
-                        <span title="--i:56"></span>
-                        <span title="--i:57"></span>
-                        <span title="--i:58"></span>
-                        <span title="--i:59"></span>
-                        <span title="--i:60"></span>
-                        <span title="--i:61"></span>
-                        <span title="--i:62"></span>
-                        <span title="--i:63"></span>
-                        <span title="--i:64"></span>
-                        <span title="--i:65"></span>
-                        <span title="--i:66"></span>
-                        <span title="--i:67"></span>
-                        <span title="--i:68"></span>
-                        <span title="--i:69"></span>
-                        <span title="--i:70"></span>
-                        <span title="--i:71"></span>
-                        <span title="--i:72"></span>
-                        <span title="--i:73"></span>
-                        <span title="--i:74"></span>
-                        <span title="--i:75"></span>
-                        <span title="--i:76"></span>
-                        <span title="--i:77"></span>
-                        <span title="--i:78"></span>
-                        <span title="--i:79"></span>
-                        <span title="--i:80"></span>
-                        <span title="--i:81"></span>
-                        <span title="--i:82"></span>
-                        <span title="--i:83"></span>
-                        <span title="--i:84"></span>
-                        <span title="--i:85"></span>
-                        <span title="--i:86"></span>
-                        <span title="--i:87"></span>
-                        <span title="--i:88"></span>
-                        <span title="--i:89"></span>
-                        <span title="--i:90"></span>
-                        <span title="--i:91"></span>
-                        <span title="--i:92"></span>
-                        <span title="--i:93"></span>
-                        <span title="--i:94"></span>
-                        <span title="--i:95"></span>
-                        <span title="--i:96"></span>
-                        <span title="--i:97"></span>
-                        <span title="--i:98"></span>
-                        <span title="--i:99"></span>
-                        <span title="--i:100"></span>
 
-
-
-                    </div>
-                    <div id="minor-ticks-bottom-mask"></div>
                     <div id="bottom-circle"></div>
                     <svg version="1.1" baseProfile="full" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
                         <linearGradient id="gradient" x1="0" x2="1" y1="0" y2="0">
@@ -462,7 +265,7 @@
         </div>
     </div>
     <script>
-        const parsedObject = { "trv1": { "etag": "77x95+WSOG0PLZhCsYMQLFmw==", "value": "{\"hostname\":\"shellytrv-60a423db07a6\",\"valve_position\":39.9,\"target_t\":30,\"temperature\":28.6,\"battery\":73}" } }; for (const key in parsedObject) { if (parsedObject[key].hasOwnProperty('value')) { parsedObject[key].value = JSON.parse(parsedObject[key].value); } }
+        const parsedObject = { "trv1": { "etag": "77x95+WSOG0PLZhCsYMQLFmw==", "value": "{\"hostname\":\"shellytrv-60a423db07a6\",\"valve_position\":39.9,\"target_t\":30,\"temperature\":28.6,\"battery\":73}" }, "trv2": { "etag": "75aif2qR2xK3AdiJ3ZI1foRQ==", "value": "{\"hostname\":\"shellytrv-60a423db07a2\",\"valve_position\":17,\"target_t\":17,\"temperature\":17.6,\"battery\":17}" } }; for (const key in parsedObject) { if (parsedObject[key].hasOwnProperty('value')) { parsedObject[key].value = JSON.parse(parsedObject[key].value); } }
         console.log(parsedObject);
         const arc = document.querySelector("svg path");
         const target_temperature = document.getElementById("target_temperature");
