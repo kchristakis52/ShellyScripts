@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTMX Dropdown Example</title>
+    <title>TRV Data</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .content-item {
@@ -84,8 +84,6 @@
             transform: translateY(-50%);
         }
 
-
-
         #bottom-circle {
             position: absolute;
             width: 70%;
@@ -116,7 +114,7 @@
         }
 
         #center-circle::before {
-            content: '';
+            content: "";
             position: absolute;
             width: 145px;
             height: 145px;
@@ -178,17 +176,16 @@
 </head>
 
 <body class="container my-4">
-    <div class="mb-3">
-        <label for="dropdown" class="form-label">Choose an option:</label>
-        <select class="form-select" id="dropdown">
-            <option value="">Select...</option>
-            <option value="trv1">Content 1</option>
-            <option value="trv2">Content 2</option>
-            <option value="content3">Content 3</option>
-        </select>
-    </div>
     <div class="container mx-auto g-3">
         <h1>TRV Data</h1>
+        <div class="mb-3"> <label for="dropdown" class="form-label">Choose an option:</label> <select
+                class="form-select" id="dropdown">
+                <option value="">Select...</option>
+                <option value="trv1">Content 1</option>
+                <option value="trv2">Content 2</option>
+                <option value="content3">Content 3</option>
+            </select>
+        </div>
         <div class="row justify-content-center align-items-center">
             <div class="col-md-4">
                 <div class="card" id="gauge">
@@ -207,7 +204,7 @@
                             stroke-linecap="round" stroke-dasharray="0 282.78" />
                     </svg>
                     <div id="center-circle">
-                        <span id="name">TARG. TEMPERATURE</span>
+                        <span id="name">TAR. TEMPERATURE</span>
                         <span id="target_temperature">18</span>
                     </div>
 
@@ -237,6 +234,8 @@
 
                 </div>
             </div>
+        </div>
+        <div class="row justify-content-center align-items-center">
             <div class="col-md-4">
                 <div class="card" id="gauge2">
                     <div id="major-ticks">
@@ -262,6 +261,31 @@
 
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="card" id="gauge4">
+                    <div id="major-ticks">
+                        <span>0%</span>
+                        <span>50%</span>
+                        <span>100%</span>
+                    </div>
+
+                    <div id="bottom-circle"></div>
+                    <svg version="1.1" baseProfile="full" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
+                        <linearGradient id="gradient" x1="0" x2="1" y1="0" y2="0">
+                            <stop offset="0%" stop-color="#b96e85" />
+                            <stop offset="100%" stop-color="#ae69bb" />
+                        </linearGradient>
+                        <path id="battery_path" d="M5 95 A80 80 0 0 1 185 95" stroke=url(#gradient) fill="none"
+                            stroke-width="10" stroke-linecap="round" stroke-dasharray="0 282.78" />
+                    </svg>
+                    <div id="center-circle">
+                        <span id="name">BATTERY</span>
+                        <span id="battery">50</span>
+
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
     <script>
@@ -273,7 +297,8 @@
         const valve = document.getElementById("valve");
         const external_temperature = document.getElementById("external_temperature");
         const arc_external_temperature = document.getElementById("external_temperature_path")
-
+        const battery = document.getElementById("battery");
+        const arc_battery = document.getElementById("battery_path")
 
         function target_temp_change(key) {
             const insert_value = parsedObject[key].value.target_t
@@ -300,19 +325,26 @@
             const value = (insert_value) * step;
             arc_valve.style.strokeDasharray = `${value} ${arc_length - value}`;
         }
-
+        function battery_change(key) {
+            const insert_value = parsedObject[key].value.battery
+            battery.textContent = insert_value
+            const arc_length = arc_battery.getTotalLength();
+            const step = arc_length / (100);
+            const value = (insert_value) * step;
+            arc_battery.style.strokeDasharray = `${value} ${arc_length - value}`;
+        }
 
 
 
         document.getElementById('dropdown').addEventListener('change', function () {
             let selectedKey = this.value;
-
             target_temp_change(selectedKey)
             valve_change(selectedKey)
             external_temp_change(selectedKey)
+            battery_change(selectedKey)
         });
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js'></script>
 </body>
 
 </html>
