@@ -7,6 +7,7 @@
     </title>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>    
 </head>
 
 <body>
@@ -35,18 +36,18 @@
                     // Create the chart
                     Highcharts.chart(`container${sensorType}`, {
                         title: {
-                            text: `${sensorType} Data Line Graph`
+                            text: `${sensorType[0].toUpperCase() + sensorType.slice(1)} Data Line Graph`
                         },
                         xAxis: {
                             type: 'datetime'
                         },
                         yAxis: {
                             title: {
-                                text: `${sensorType} Sensor Value`
+                                text: `Sensor Value`
                             }
                         },
                         series: [{
-                            name: `${sensorType}  Data`,
+                            name: `${sensorType[0].toUpperCase() + sensorType.slice(1)} Data`,
                             data: formattedData
                         }],
                         plotOptions: {
