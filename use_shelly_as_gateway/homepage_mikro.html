@@ -13,6 +13,13 @@
     <div class="container mx-auto g-3">
       <h1>TRV Data</h1>
       <div class="mb-3">
+        <label for="dropdown" class="form-label">Choose a room:</label>
+        <select class="form-select" id="roomdropdown">
+          <option value="">Select...</option>
+          <option value="room1">room1</option>
+        </select>
+      </div>
+      <div class="mb-3">
         <label for="dropdown" class="form-label">Choose an option:</label>
         <select class="form-select" id="dropdown">
           '
@@ -83,7 +90,7 @@
       </div>
     </div>
     <script>
-      const parsedObject = '+a+';
+      const parsedObject = "+a+";
       for (const key in parsedObject) {
         if (parsedObject[key].hasOwnProperty("value")) {
           parsedObject[key].value = JSON.parse(parsedObject[key].value);
