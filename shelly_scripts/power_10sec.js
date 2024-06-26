@@ -13,7 +13,6 @@ Timer.set(10000, true, function () {
                 value: result.apower,
                 timestamp: unixtime
             };
-            print(JSON.stringify(mqtt_mess))
             MQTT.publish("shellies/" + id + "/relay/0/power", JSON.stringify(mqtt_mess), 0, false);
         }
     );
