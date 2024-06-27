@@ -19,12 +19,11 @@ client.on('connect', () => {
 });
 
 client.on('message', (topic, message) => {
-    // console.log('Received message:', message.toString());
     if (topic == 'download_data') {
         const data = JSON.parse(message.toString());
         db.run('INSERT INTO sensor_data (device_id, value, timestamp, type, gateway_uuid) VALUES (?, ?, ?, ?, ?)', [data.device_id, data.value, data.timestamp, data.type, data.gateway_uuid], (err) => {
             if (err) {
-                // console.error(err);
+                console.error(err);
             } else {
                 console.log('Data inserted');
             }
@@ -34,13 +33,11 @@ client.on('message', (topic, message) => {
 
 // Define the endpoint for the landing page
 app.get('/', (req, res) => {
-    // Fetch data from the database
     db.all('SELECT * FROM gateways', (err, rows) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
-            // Render the landing page with the fetched data
             res.render('landing_page', { data: rows });
         }
     });
@@ -64,24 +61,40 @@ app.post('/mqtt_to_http', (req, res) => {
     const topic = `${req.body.gateway_uuid}/${uuidv4()}`
     const message = req.body.url
     const route_client = mqtt.connect(mqtt_server_url);
-    const timeout = 5000; // 5 seconds
 
-    // Set the timeout for the response
-    res.setTimeout(timeout, () => {
-        res.status(500).send('Timeout Error');
-        route_client.end();
-    });
-
-    route_client.on('message', (response_topic, message) => {
-        // console.log('Received message:', message.toString());
-        if (`${topic}/res` == response_topic) {
-            res.send(message.toString());
+    if (message != 'sendData') {
+        // Set the timeout for the response
+        const timeout = 5000; // 5 seconds        
+        res.setTimeout(timeout, () => {
+            res.status(500).send('Timeout Error');
             route_client.end();
-        }
-    });
-    route_client.subscribe(`${topic}/res`);
-    route_client.publish(topic, message);
+        });
+        route_client.on('message', (response_topic, message) => {
+            if (`${topic}/res` == response_topic) {
+                res.send(message.toString());
+                route_client.end();
+            }
+        });
+        route_client.subscribe(`${topic}/res`);
+        route_client.publish(topic, message);
+    }
+
+    else {
+        route_client.publish(topic, message);
+        res.send('Data uploaded successfully');
+        route_client.end();
+    }
 });
+
+app.post('/request_data', (req, res) => {
+    const topic = `${req.body.gateway_uuid}/${uuidv4()}`
+    const message = 'sendData'
+    const route_client = mqtt.connect(mqtt_server_url);
+    route_client.publish(topic, message);
+    res.send('Data uploaded successfully');
+    route_client.end();
+});
+
 
 app.get('/device_controls', (req, res) => {
     const deviceType = req.query.device_type
@@ -92,7 +105,6 @@ app.get('/device_data', (req, res) => {
     const gatewayId = req.query.gateway_uuid
     const deviceId = req.query.device_id
     const deviceType = req.query.device_type
-    // Fetch data from the database
     db.all("SELECT type, json_group_array(json_object('value', sensor_data.value, 'timestamp',sensor_data.timestamp)) as data FROM sensor_data WHERE gateway_uuid = ? AND device_id = ? AND timestamp >= unixepoch('now', '-1 days') AND timestamp <= unixepoch('now') GROUP BY type ", [gatewayId, deviceId], (err, rows) => {
         if (err) {
             console.error(err);
