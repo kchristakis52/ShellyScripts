@@ -86,14 +86,13 @@ app.post('/mqtt_to_http', (req, res) => {
     }
 });
 
-app.post('/request_data', (req, res) => {
-    const topic = `${req.body.gateway_uuid}/${uuidv4()}`
-    const message = 'sendData'
-    const route_client = mqtt.connect(mqtt_server_url);
-    route_client.publish(topic, message);
-    res.send('Data uploaded successfully');
-    route_client.end();
-});
+// app.post('/request_data', (req, res) => {
+//     const topic = `${req.body.gateway_uuid}/${uuidv4()}`
+//     const route_client = mqtt.connect(mqtt_server_url);
+//     route_client.publish(topic, 'sendData');
+//     res.send('Data uploaded successfully');
+//     route_client.end();
+// });
 
 
 app.get('/device_controls', (req, res) => {
