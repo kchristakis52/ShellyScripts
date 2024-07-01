@@ -23,15 +23,14 @@ let inflight_http_requests = {}
 wss.on('connection', function connection(ws, http_request) {
     request_uuid = http_request.url.split('/')[1]
     ws.on('error', console.error);
-
+    // When the gateway sends a message, send it to the client
     ws.on('message', function message(data) {
-        console.log('received: %s', data);
         if (inflight_http_requests.hasOwnProperty(request_uuid)) {
             inflight_http_requests[request_uuid].res.send(data)
             delete inflight_http_requests[request_uuid]
         }
     });
-
+    // If request_uuid is valid, send the message to the gateway
     if (inflight_http_requests.hasOwnProperty(request_uuid)) {
         ws.send(inflight_http_requests[request_uuid].message)
     }
@@ -95,7 +94,6 @@ app.post('/mqtt_to_http', (req, res) => {
             res.status(500).send('Timeout Error');
             delete inflight_http_requests[request_uuid]
         });
-
         inflight_http_requests[request_uuid] = {
             message: message,
             res: res
