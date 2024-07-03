@@ -22,14 +22,27 @@ function publishDataCallback() {
                             }
                             body = JSON.parse(data.body)
                             print(body)
+                            //responseJSON = {
+                            //    hostname: trvData.hostname,
+                            //    valve_position: body.thermostats[0].pos,
+                            //    target_t: body.thermostats[0].target_t.value,
+                            //    temperature: body.thermostats[0].tmp.value,
+                            //    battery: body.bat.value,
+                            //    timestamp: new Date().toISOString()
+                            //}
                             responseJSON = {
-                                hostname: trvData.hostname,
-                                valve_position: body.thermostats[0].pos,
-                                target_t: body.thermostats[0].target_t.value,
-                                temperature: body.thermostats[0].tmp.value,
-                                battery: body.bat.value
+                                Timestamp: new Date().toISOString(),
+                                Measurements: [{
+                                    Value: {
+                                        Hostname: trvData.hostname,
+                                        ValvePosition: body.thermostats[0].pos,
+                                        TargetTemperature: body.thermostats[0].target_t.value,
+                                        Temperature: body.thermostats[0].tmp.value,
+                                        Battery: body.bat.value,
+                                    }
+                                }]
                             }
-                            print(key)
+                            print(responseJSON)
                             Shelly.call("KVS.Set", { key: key, value: JSON.stringify(responseJSON) }, function (result, error_code, error_message) {
                                 if (error_code != 0) {
                                     print(error_message)
@@ -37,7 +50,8 @@ function publishDataCallback() {
                                     print(result)
                                 }
                             })
-                            MQTT.publish("trv_data", JSON.stringify(responseJSON))
+                            print("buildon/fasada/gdynia/trv/" + trvData.hostname)
+                            MQTT.publish("buildontest/fasada/gdynia/trv/" + trvData.hostname, JSON.stringify(responseJSON))
 
                         }
                     );
@@ -47,6 +61,6 @@ function publishDataCallback() {
     }
     );
 }
-let period = 10000;
+let period = 3600000;
 MQTT.subscribe("gateway_id/trv_updates", publishDataCallback)
 Timer.set(period, true, publishDataCallback)
