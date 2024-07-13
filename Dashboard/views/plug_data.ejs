@@ -32,7 +32,7 @@
                             timezone: 'Europe/Athens'
                         }
                     });
-
+                    console.log(sensorType);
                     // Create the chart
                     Highcharts.chart(`container${sensorType}`, {
                         title: {
@@ -43,7 +43,8 @@
                         },
                         yAxis: {
                             title: {
-                                text: `Sensor Value`
+                                //if sensorType is energy, then the title will be Energy (WmH), else it will be Power (W)
+                                text: sensorType === 'energy' ? 'Energy (Wh)' : 'Power (W)'
                             }
                         },
                         series: [{
