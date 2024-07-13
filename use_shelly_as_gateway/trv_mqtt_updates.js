@@ -10,8 +10,9 @@ function publishDataCallback() {
                     console.log(key); // item1, item2
                     console.log(items[key].value); // item1 value, item2 value
                     trvData = JSON.parse(items[key].value);
+                    trvHostname = trvData.Measurements[0].Value.Hostname
 
-                    url = "http://" + trvData.hostname + ".local/status"
+                    url = "http://" + trvHostname + ".local/status"
                     Shelly.call(
                         "http.get",
                         { "url": url },
@@ -34,7 +35,7 @@ function publishDataCallback() {
                                 Timestamp: new Date().toISOString(),
                                 Measurements: [{
                                     Value: {
-                                        Hostname: trvData.hostname,
+                                        Hostname: trvHostname,
                                         ValvePosition: body.thermostats[0].pos,
                                         TargetTemperature: body.thermostats[0].target_t.value,
                                         Temperature: body.thermostats[0].tmp.value,
@@ -43,6 +44,7 @@ function publishDataCallback() {
                                 }]
                             }
                             print(responseJSON)
+                            hostname = responseJSON.Measurements[0].Value.Hostname
                             Shelly.call("KVS.Set", { key: key, value: JSON.stringify(responseJSON) }, function (result, error_code, error_message) {
                                 if (error_code != 0) {
                                     print(error_message)
@@ -50,8 +52,8 @@ function publishDataCallback() {
                                     print(result)
                                 }
                             })
-                            print("buildon/fasada/gdynia/trv/" + trvData.hostname)
-                            MQTT.publish("buildontest/fasada/gdynia/trv/" + trvData.hostname, JSON.stringify(responseJSON))
+                            print("buildon/fasada/gdynia/trv/" + trvHostname)
+                            MQTT.publish("buildontest/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON))
 
                         }
                     );
