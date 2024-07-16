@@ -19,9 +19,9 @@ let device_metadata = [
                 point_unit: "Watt",
             },
             {
-                point_name: "Pf",
+                point_name: "pf",
                 point_type: "Power_Sensor",
-                point_unit: "null",
+                point_unit: "",
             },
             {
                 point_name: "frequency",
@@ -31,24 +31,23 @@ let device_metadata = [
             {
                 point_name: "aprt_power",
                 point_type: "Power_Sensor",
-                point_unit: "Volt-Ampere",
+                point_unit: "VA",
             },
         ],
     },
-    //isws allagh se auta pou leei to excel kai oxi se auta pou leei to mail?
     {
         device_id: "3em-id",
         device_type: "Building_Electrical_Meter",
         points: [
             {
                 point_name: "a_act_power",
-                point_type: "Active_Power_Sensor",
+                point_type: "Power_Sensor",
                 point_unit: "Watt",
             },
             {
                 point_name: "a_aprt_power",
-                point_type: "Reactive_Power_Sensor",
-                point_unit: "Volt-Ampere",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
             },
             {
                 point_name: "a_current",
@@ -56,14 +55,14 @@ let device_metadata = [
                 point_unit: "Ampere",
             },
             {
-                point_name: "a_freq",
+                point_name: "a_frequency",
                 point_type: "Frequency_Setpoint",
                 point_unit: "Hertz",
             },
             {
                 point_name: "a_pf",
                 point_type: "Power_Factor_Sensor",
-                point_unit: "null",
+                point_unit: "",
             },
             {
                 point_name: "a_voltage",
@@ -72,13 +71,13 @@ let device_metadata = [
             },
             {
                 point_name: "b_act_power",
-                point_type: "Reactive_Power_Sensor",
-                point_unit: "Volt-Ampere",
+                point_type: "Power_Sensor",
+                point_unit: "Watt",
             },
             {
                 point_name: "b_aprt_power",
-                point_type: "Active_Power_Sensor",
-                point_unit: "Watt",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
             },
             {
                 point_name: "b_current",
@@ -86,14 +85,14 @@ let device_metadata = [
                 point_unit: "Ampere",
             },
             {
-                point_name: "b_freq",
+                point_name: "b_frequency",
                 point_type: "Frequency_Setpoint",
                 point_unit: "Hertz",
             },
             {
                 point_name: "b_pf",
                 point_type: "Power_Factor_Sensor",
-                point_unit: "null",
+                point_unit: "",
             },
             {
                 point_name: "b_voltage",
@@ -102,13 +101,13 @@ let device_metadata = [
             },
             {
                 point_name: "c_act_power",
-                point_type: "Reactive_Power_Sensor",
-                point_unit: "Volt-Ampere",
+                point_type: "Power_Sensor",
+                point_unit: "Watt",
             },
             {
                 point_name: "c_aprt_power",
-                point_type: "Active_Power_Sensor",
-                point_unit: "Watt",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
             },
             {
                 point_name: "c_current",
@@ -116,14 +115,14 @@ let device_metadata = [
                 point_unit: "Ampere",
             },
             {
-                point_name: "c_freq",
+                point_name: "c_frequency",
                 point_type: "Frequency_Setpoint",
                 point_unit: "Hertz",
             },
             {
                 point_name: "c_pf",
                 point_type: "Power_Factor_Sensor",
-                point_unit: "null",
+                point_unit: "",
             },
             {
                 point_name: "c_voltage",
@@ -131,14 +130,55 @@ let device_metadata = [
                 point_unit: "Volt",
             },
             {
+                point_name: "a_total_act_energy",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
+                point_name: "b_total_act_energy",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
+                point_name: "c_total_act_energy",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
+                point_name: "a_total_act_ret_energy",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
+                point_name: "b_total_act_ret_energy",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
+                point_name: "c_total_act_ret_energy",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+
+            {
+                point_name: "total_act",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
+                point_name: "total_act_ret",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
+            },
+            {
                 point_name: "total_act_power",
-                point_type: "Active_Power_Sensor",
+                point_type: "Power_Sensor",
                 point_unit: "Watt",
             },
             {
                 point_name: "total_aprt_power",
-                point_type: "Reactive_Power_Sensor",
-                point_unit: "Volt-Ampere",
+                point_type: "Power_Sensor",
+                point_unit: "VA",
             },
             {
                 point_name: "total_current",
@@ -165,7 +205,7 @@ let device_metadata = [
             {
                 point_name: "valve_pos",
                 point_type: "Position_Sensor",
-                point_unit: "null",
+                point_unit: "%",
             },
         ],
     },
@@ -177,7 +217,7 @@ let device_metadata = [
             {
                 point_name: "humidity",
                 point_type: "Humidity_Sensor",
-                point_unit: "null",
+                point_unit: "%",
             },
             {
                 point_name: "temperature",
@@ -188,9 +228,11 @@ let device_metadata = [
     },
 ];
 
-function publishDataCallback() {
+function publishDataCallback(topic, message, userdata) {
     //print(JSON.stringify(device_metadata));
-    MQTT.publish("get_devices_info/res" + trvHostname, JSON.stringify(device_metadata));
+    if (message == "get") {
+        MQTT.publish("buildon/fasada/gdynia/configurations", JSON.stringify(device_metadata));
+    }
 }
 
-MQTT.subscribe("get_devices_info", publishDataCallback);
+MQTT.subscribe("buildon/fasada/gdynia/get_configurations", publishDataCallback);
