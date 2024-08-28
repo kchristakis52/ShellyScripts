@@ -26,8 +26,8 @@ Timer.set(10000, true, function () {
                     }
                 }]
             }
-            console.log(mqtt_mess)
-            MQTT.publish("buildontest/fasada/gdynia/plug/" + id, JSON.stringify(mqtt_mess), 0, false);
+            //console.log(mqtt_mess)
+            MQTT.publish("buildon/fasada/gdynia/plug/" + id, JSON.stringify(mqtt_mess), 0, false);
         }
     );
 });
