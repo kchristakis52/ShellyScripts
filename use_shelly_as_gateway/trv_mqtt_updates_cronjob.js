@@ -68,69 +68,73 @@ function installSchedule() {
 
 registerIfNotRegistered();
 
-//Actual task that is to be run on a schedule
-function scheduledTask() {
-    Shelly.call("KVS.GetMany", { match: "trv*" }, function (result, error_code, error_message) {
+function processHTTPData(data, error_code, error_message, userdata) {
+    let trvHostname = userdata.trvHostname;
+    let key = userdata.key;
+    if (error_code != 0) {
+        print(error_message)
+        MQTT.publish("debug/" + trvHostname + "error", JSON.stringify(error_message), 1, true)
+        return;
+    }
+    MQTT.publish("debug/" + trvHostname + "/body", JSON.stringify(data.body), 1, true)
+    let body = JSON.parse(data.body)
+
+    let responseJSON = {
+        Timestamp: new Date().toISOString(),
+        Measurements: [{
+            Value: {
+                Hostname: trvHostname,
+                ValvePosition: body.thermostats[0].pos,
+                TargetTemperature: body.thermostats[0].target_t.value,
+                Temperature: body.thermostats[0].tmp.value,
+                Battery: body.bat.value,
+            }
+        }]
+    }
+    MQTT.publish("buildon/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON), 1, true)
+
+    Shelly.call("KVS.Set", { key: key, value: JSON.stringify(responseJSON) }, function (result, error_code, error_message) {
         if (error_code != 0) {
-            // process error
+            print(error_message)
         } else {
-            //print(result.items)
-            items = result.items
-            for (let key in items) {
-                if (items.hasOwnProperty(key)) {
-                    //console.log(key); // item1, item2
-                    //console.log(items[key].value); // item1 value, item2 value
-                    trvData = JSON.parse(items[key].value);
-                    trvHostname = trvData.Measurements[0].Value.Hostname
+            //print(result)
+        }
+    })
 
-                    url = "http://" + trvHostname + ".local/status"
-                    Shelly.call(
-                        "http.get",
-                        { "url": url },
-                        function (data, error_code, error_message) {
-                            if (error_code != 0) {
-                                print(error_message)
-                                return;
-                            }
-                            body = JSON.parse(data.body)
-                            print(body)
-                            //responseJSON = {
-                            //    hostname: trvData.hostname,
-                            //    valve_position: body.thermostats[0].pos,
-                            //    target_t: body.thermostats[0].target_t.value,
-                            //    temperature: body.thermostats[0].tmp.value,
-                            //    battery: body.bat.value,
-                            //    timestamp: new Date().toISOString()
-                            //}
-                            responseJSON = {
-                                Timestamp: new Date().toISOString(),
-                                Measurements: [{
-                                    Value: {
-                                        Hostname: trvHostname,
-                                        ValvePosition: body.thermostats[0].pos,
-                                        TargetTemperature: body.thermostats[0].target_t.value,
-                                        Temperature: body.thermostats[0].tmp.value,
-                                        Battery: body.bat.value,
-                                    }
-                                }]
-                            }
-                            print(JSON.stringify(responseJSON))
 
-                            Shelly.call("KVS.Set", { key: key, value: JSON.stringify(responseJSON) }, function (result, error_code, error_message) {
-                                if (error_code != 0) {
-                                    print(error_message)
-                                } else {
-                                    //print(result)
-                                }
-                            })
-                            print("buildon/fasada/gdynia/trv/" + trvHostname)
-                            MQTT.publish("buildon/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON))
+};
 
-                        }
-                    );
-                }
+function processKVSData(result, error_code, error_message) {
+    if (error_code != 0) {
+        // process error
+        MQTT.publish("debug", error_message, 1, true)
+    } else {
+        //print(result.items)
+        MQTT.publish("debug", JSON.stringify(result.items), 1, true)
+        let items = result.items
+        for (let key in items) {
+            if (items.hasOwnProperty(key)) {
+                //console.log(key); // item1, item2
+                //console.log(items[key].value); // item1 value, item2 value
+                MQTT.publish("debug/key", key, 1, true)
+                MQTT.publish("debug/value", items[key].value, 1, true)
+                let trvData = JSON.parse(items[key].value);
+                let trvHostname = trvData.Measurements[0].Value.Hostname
+
+                let url = "http://" + trvHostname + "/status"
+                MQTT.publish("debug/" + trvHostname + "/url", url, 1, true)
+                let userdata = { "trvHostname": trvHostname, "key": key };
+
+                Shelly.call(
+                    "http.get",
+                    { "url": url }, processHTTPData, userdata);
             }
         }
     }
-    );
+
+};
+//Actual task that is to be run on a schedule
+
+function scheduledTask() {
+    Shelly.call("KVS.GetMany", { match: "trv/*/*" }, processKVSData);
 }
