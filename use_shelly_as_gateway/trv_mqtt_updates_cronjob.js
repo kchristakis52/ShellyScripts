@@ -170,14 +170,14 @@ function processHTTPData(data, error_code, error_message, userdata) {
         }]
     }
     MQTT.publish("buildon/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON), 1, true)
+    let call_to_issue = [];
+    call_to_issue.push(ShellyCallQ.build_call(
+        "KVS.Set",
+        { key: key, value: JSON.stringify(responseJSON) }
 
-    Shelly.call("KVS.Set", { key: key, value: JSON.stringify(responseJSON) }, function (result, error_code, error_message) {
-        if (error_code != 0) {
-            print(error_message)
-        } else {
-            //print(result)
-        }
-    })
+    ));
+
+    ShellyCallQ.add_calls(call_to_issue);
 
 
 };
@@ -210,12 +210,13 @@ function processKVSData(result, error_code, error_message) {
                 let userdata = { "trvHostname": trvHostname, "key": key };
                 call_group_info.calls_to_issue.push(ShellyCallQ.build_call(
                     "HTTP.GET",
-                    { url: url, timeout: 10 },
+                    { url: url },
                     processHTTPData,
                     userdata
                 ));
             }
         }
+        MQTT.publish("debug/cgi", JSON.stringify(call_group_info.calls_to_issue), 1, true);
         ShellyCallQ.add_calls(call_group_info.calls_to_issue);
     }
 
