@@ -224,5 +224,73 @@ function processKVSData(result, error_code, error_message) {
 //Actual task that is to be run on a schedule
 
 function scheduledTask() {
-    Shelly.call("KVS.GetMany", { match: "trv/*/*" }, processKVSData);
+    let cti = [];
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Classroom 1/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Classroom 2/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Classroom 3/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Classroom 4/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Classroom 5/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Corridor/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Corridor 2/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Kitchen/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Bathroom/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Director's office/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Vice Director's office/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/Staff toilet/*" },
+        processKVSData
+    ));
+    cti.push(ShellyCallQ.build_call(
+        "KVS.GetMany",
+        { match: "trv/First Floor/*" },
+        processKVSData
+    ));
+
+    // Shelly.call("KVS.GetMany", { match: "trv/*/*" }, processKVSData);
+    ShellyCallQ.add_calls(cti);
 }
