@@ -76,6 +76,15 @@ let ShellyCallQ = {
         };
     }
 };
+function processHTTPData(data, error_code, error_message, userdata) {
+    let trvHostname = userdata.trvHostname;
+
+    if (error_code != 0) {
+        print(error_message)
+        MQTT.publish("debug/" + trvHostname + "/error", JSON.stringify(error_message), 1, true)
+        return;
+    }
+}
 
 function processKVSData(result, error_code, error_message, userdata) {
     if (error_code != 0) {
@@ -103,7 +112,7 @@ function processKVSData(result, error_code, error_message, userdata) {
 
                 call_group_info.calls_to_issue.push(ShellyCallQ.build_call(
                     "HTTP.GET",
-                    { url: url }
+                    { url: url }, processHTTPData, { trvHostname: trvHostname }
 
                 ));
             }
@@ -207,15 +216,12 @@ function commandCallback(topic, message) {
     else {
         calls_to_issue.push(ShellyCallQ.build_call(
             "KVS.GetMany",
-            { match: "trv/" + room + "/*" },
+            { match: "trv/" + room + "\/*" },
             processKVSData, userdata
         ));
     }
 
     ShellyCallQ.add_calls(calls_to_issue);
 }
-
-
-
 
 MQTT.subscribe("buildon/fasada/gdynia/trvcommand", commandCallback)
