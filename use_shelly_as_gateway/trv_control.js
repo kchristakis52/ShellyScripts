@@ -78,12 +78,13 @@ let ShellyCallQ = {
 };
 function processHTTPData(data, error_code, error_message, userdata) {
     let trvHostname = userdata.trvHostname;
+    MQTT.publish("debug/" + trvHostname + "/nai", "JSON.stringify(error_message)", 1, true)
 
     if (error_code != 0) {
         print(error_message)
         MQTT.publish("debug/" + trvHostname + "/error", JSON.stringify(error_message), 1, true)
-        return;
     }
+    MQTT.publish("debug/" + trvHostname + "/response", JSON.stringify(data), 1, true)
 }
 
 function processKVSData(result, error_code, error_message, userdata) {
@@ -126,102 +127,117 @@ function processKVSData(result, error_code, error_message, userdata) {
 
 // Example JSON payload:
 // {"room":"Corridor","value":22}
+// {"hostname":"shellytrv-588e81a41b41","value":22}
 
 function commandCallback(topic, message) {
     let commandObject = JSON.parse(message);
-    let room = commandObject.room;
-    let value = commandObject.value;
-    console.log("Command received: " + room + " " + value);
-    let userdata = { "value": value };
-    let calls_to_issue = [];
-    if (room === "all") {
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Classroom 1/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Classroom 2/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Classroom 3/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Classroom 4/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Classroom 5/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Corridor/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Corridor 2/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Kitchen/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Bathroom/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Director's office/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Vice Director's office/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Staff toilet/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/First Floor/*" },
-            processKVSData, userdata
-        ));
-    } else if (room === "Corridor") {
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Corridor/*" },
-            processKVSData, userdata
-        ));
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/Corridor 2/*" },
-            processKVSData, userdata
-        ));
+    if (commandObject.hasOwnProperty("room")) {
+        let room = commandObject.room;
+        let value = commandObject.value;
 
+        let userdata = { "value": value };
+        let calls_to_issue = [];
+        if (room === "all") {
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Classroom 1/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Classroom 2/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Classroom 3/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Classroom 4/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Classroom 5/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Corridor/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Corridor 2/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Kitchen/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Bathroom/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Director's office/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Vice Director's office/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Staff toilet/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/First Floor/*" },
+                processKVSData, userdata
+            ));
+        } else if (room === "Corridor") {
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Corridor/*" },
+                processKVSData, userdata
+            ));
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/Corridor 2/*" },
+                processKVSData, userdata
+            ));
+
+        }
+        else {
+            calls_to_issue.push(ShellyCallQ.build_call(
+                "KVS.GetMany",
+                { match: "trv/" + room + "\/*" },
+                processKVSData, userdata
+            ));
+        }
+
+        ShellyCallQ.add_calls(calls_to_issue);
     }
-    else {
-        calls_to_issue.push(ShellyCallQ.build_call(
-            "KVS.GetMany",
-            { match: "trv/" + room + "\/*" },
-            processKVSData, userdata
-        ));
+    else if (commandObject.hasOwnProperty("hostname")) {
+        let trvHostname = commandObject.hostname;
+        let value = commandObject.value;
+        let url = "http://" + trvHostname + "/settings/thermostats/0?target_t=" + value;
+        MQTT.publish("debug/" + trvHostname + "/url", url, 1, true)
+        ShellyCallQ.add_calls([ShellyCallQ.build_call(
+            "HTTP.GET",
+            { url: url }, processHTTPData, { trvHostname: trvHostname }
+
+        )]);
     }
 
-    ShellyCallQ.add_calls(calls_to_issue);
 }
 
 MQTT.subscribe("buildon/fasada/gdynia/trvcommand", commandCallback)
