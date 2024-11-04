@@ -181,8 +181,42 @@ function onReceivedPacket(data) {
             return;
         }
     }
+    // Shelly.call('HTTP.POST',
+    //     { "url": "http://192.168.1.6:8000/log", "body": data }, function (result, error_code, error_message) {
+    //         if (error_code != 0) {
+    //             // process error
+    //         } else {
+    //             print(result)
+    //         }
+    //     });
 
-    print(data)
+    if (typeof data.motion !== "undefined") {
+        let mqtt_mess = {
+            Timestamp: new Date().toISOString(),
+            Measurements: [{
+                Value: {
+                    illuminance: data.illuminance,
+                    motion: data.motion,
+                }
+            }]
+        }
+
+        MQTT.publish("inherit/motion/" + data.address + "/data", JSON.stringify(mqtt_mess), 1, true);
+
+    }
+    else {
+        let mqtt_mess = {
+            Timestamp: new Date().toISOString(),
+            Measurements: [{
+                Value: {
+                    illuminance: data.illuminance,
+                    window: data.window,
+                    rotation: data.rotation,
+                }
+            }]
+        }
+        MQTT.publish("inherit/window/" + data.address + "/data", JSON.stringify(mqtt_mess), 1, true);
+    }
 }
 
 //saving the id of the last packet, this is used to filter the duplicated packets
