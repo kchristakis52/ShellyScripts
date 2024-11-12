@@ -8,14 +8,8 @@ Timer.set(10000, true, function () {
             id: 0,
         },
         function (result, error_code, error_message) {
-            let unixtime = Shelly.getComponentStatus("sys").unixtime;
-            //let mqtt_mess = {
-            //   power: result.apower,
-            //   energy: result.aenergy.total,
-            //    timestamp: new Date(unixtime*1000).toISOString()
-            //};
             let mqtt_mess = {
-                Timestamp: new Date(unixtime * 1000).toISOString(),
+                Timestamp: new Date().toISOString(),
                 Measurements: [{
                     Value: {
                         Power: result.apower,
