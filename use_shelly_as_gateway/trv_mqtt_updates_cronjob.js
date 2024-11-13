@@ -161,7 +161,7 @@ function processHTTPData(data, error_code, error_message, userdata) {
         Timestamp: new Date().toISOString(),
         Measurements: [{
             Value: {
-                Hostname: trvHostname,
+                // Hostname: trvHostname,
                 ValvePosition: body.thermostats[0].pos,
                 TargetTemperature: body.thermostats[0].target_t.value,
                 Temperature: body.thermostats[0].tmp.value,
@@ -170,6 +170,7 @@ function processHTTPData(data, error_code, error_message, userdata) {
         }]
     }
     MQTT.publish("buildon/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON), 1, true)
+    responseJSON.Measurements[0].Value.Hostname = trvHostname;
     let call_to_issue = [];
     call_to_issue.push(ShellyCallQ.build_call(
         "KVS.Set",
