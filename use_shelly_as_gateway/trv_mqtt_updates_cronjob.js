@@ -295,3 +295,13 @@ function scheduledTask() {
     // Shelly.call("KVS.GetMany", { match: "trv/*/*" }, processKVSData);
     ShellyCallQ.add_calls(cti);
 }
+// Use this for testing
+// {
+//     "id": 123,
+//         "src": "user_1",
+//             "method": "Script.Eval",
+//                 "params": {
+//         "id": 3,
+//             "code": "scheduledTask()"
+//     }
+// }
