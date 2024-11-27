@@ -148,7 +148,7 @@ let ShellyCallQ = {
 
 function processHTTPData(data, error_code, error_message, userdata) {
     let trvHostname = userdata.trvHostname;
-    let key = userdata.key;
+
     if (error_code != 0) {
         print(error_message)
         MQTT.publish("debug/" + trvHostname + "/error", JSON.stringify(error_message), 1, true)
@@ -161,7 +161,7 @@ function processHTTPData(data, error_code, error_message, userdata) {
         Timestamp: new Date().toISOString(),
         Measurements: [{
             Value: {
-                // Hostname: trvHostname,
+
                 ValvePosition: body.thermostats[0].pos,
                 TargetTemperature: body.thermostats[0].target_t.value,
                 Temperature: body.thermostats[0].tmp.value,
@@ -169,139 +169,68 @@ function processHTTPData(data, error_code, error_message, userdata) {
             }
         }]
     }
-    MQTT.publish("buildon/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON), 1, true)
-    responseJSON.Measurements[0].Value.Hostname = trvHostname;
-    let call_to_issue = [];
-    call_to_issue.push(ShellyCallQ.build_call(
-        "KVS.Set",
-        { key: key, value: JSON.stringify(responseJSON) }
-
-    ));
-
-    ShellyCallQ.add_calls(call_to_issue);
+    MQTT.publish("buildon/fasada/gdynia/trv/" + trvHostname, JSON.stringify(responseJSON), 1, false)
 
 
 };
 
-function processKVSData(result, error_code, error_message) {
-    if (error_code != 0) {
-        // process error
-        MQTT.publish("debug", error_message, 1, true)
-    } else {
+function hitTRVs(trvs) {
+    let call_group_info = {
+        calls_to_issue: [],
+        unfinished_calls: 0,
+        call_results: {},
+    };
 
-        MQTT.publish("debug", JSON.stringify(result.items), 1, true)
-        let items = result.items
-        let call_group_info = {
-            calls_to_issue: [],
-            unfinished_calls: 0,
-            call_results: {},
-        };
-
-        for (let key in items) {
-            if (items.hasOwnProperty(key)) {
-                //console.log(key); // item1, item2
-                //console.log(items[key].value); // item1 value, item2 value
-                MQTT.publish("debug/key", key, 1, true)
-                MQTT.publish("debug/value", items[key].value, 1, true)
-                let trvData = JSON.parse(items[key].value);
-                let trvHostname = trvData.Measurements[0].Value.Hostname
-
-                let url = "http://" + trvHostname + "/status"
-                MQTT.publish("debug/" + trvHostname + "/url", url, 1, true)
-                let userdata = { "trvHostname": trvHostname, "key": key };
-                call_group_info.calls_to_issue.push(ShellyCallQ.build_call(
-                    "HTTP.GET",
-                    { url: url, timeout: 25 },
-                    processHTTPData,
-                    userdata
-                ));
-            }
-        }
-        MQTT.publish("debug/cgi", JSON.stringify(call_group_info.calls_to_issue), 1, true);
-        ShellyCallQ.add_calls(call_group_info.calls_to_issue);
+    for (var i = 0; i < trvs.length; i++) {
+        let trvHostname = trvs[i];
+        let url = "http://" + trvHostname + "/status"
+        MQTT.publish("debug/" + trvHostname + "/url", url, 1, true)
+        let userdata = { "trvHostname": trvHostname };
+        call_group_info.calls_to_issue.push(ShellyCallQ.build_call(
+            "HTTP.GET",
+            { url: url, timeout: 25 },
+            processHTTPData,
+            userdata
+        ));
     }
+
+    MQTT.publish("debug/cgi", JSON.stringify(call_group_info.calls_to_issue), 1, true);
+    ShellyCallQ.add_calls(call_group_info.calls_to_issue);
+
 
 };
 //Actual task that is to be run on a schedule
 
 function scheduledTask() {
-    let cti = [];
-    cti.push(ShellyCallQ.build_call(
-        "KVS.GetMany",
-        { match: "trv/Classroom 1/*" },
-        processKVSData
-    ));
-    cti.push(ShellyCallQ.build_call(
-        "KVS.GetMany",
-        { match: "trv/Classroom 2/*" },
-        processKVSData
-    ));
-    cti.push(ShellyCallQ.build_call(
-        "KVS.GetMany",
-        { match: "trv/Classroom 3/*" },
-        processKVSData
-    ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Classroom 4/*" },
-    //     processKVSData
-    // ));
-    cti.push(ShellyCallQ.build_call(
-        "KVS.GetMany",
-        { match: "trv/Classroom 5/*" },
-        processKVSData
-    ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Corridor/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Corridor 2/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Kitchen/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Bathroom/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Director's office/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Vice Director's office/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/Staff toilet/*" },
-    //     processKVSData
-    // ));
-    // cti.push(ShellyCallQ.build_call(
-    //     "KVS.GetMany",
-    //     { match: "trv/First Floor/*" },
-    //     processKVSData
-    // ));
 
-    // Shelly.call("KVS.GetMany", { match: "trv/*/*" }, processKVSData);
-    ShellyCallQ.add_calls(cti);
+    // trvs = ["shellytrv-b4e3f9d9e3d7", "shellytrv-842e14ffcb48",
+    //     "shellytrv-b4e3f9e30ab3", "shellytrv-8cf681d9a228",
+    //     "shellytrv-8cf681b9c952", "shellytrv-588e81a6306d",
+    //     "shellytrv-b4e3f9d6249d", "shellytrv-8cf681cd22c2",
+    //     "shellytrv-8cf681b9c9ae", ,"shellytrv-8cf681b70b5e",
+    //     "shellytrv-8cf681a52e2e",
+    //     "shellytrv-8cf681c1abc8", "shellytrv-8cf681d9a230", "shellytrv-8cf681be1608"] //corridor, kitchen, directors, vicedirectors pv 12/14
+
+
+    trvs = [
+        "shellytrv-588e81a63315",
+        "shellytrv-842e14fe1d64",
+        "shellytrv-8cf681b70e6c",
+        "shellytrv-588e81617272",
+        "shellytrv-8cf681beo83a",
+        "shellytrv-588e81616952",
+        "shellytrv-8cf681cd1598",
+        "shellytrv-8cf681e9a780",
+        "shellytrv-b4e3f9d9bc83",
+        "shellytrv-cc86ecb3e4cd",
+        "shellytrv-8cf681a51bae",
+        "shellytrv-8cf681b9c924",
+        "shellytrv-842e14ffaf1c"]
+    //1st floor, bathroom, toilet, classroom 4 antlia 9/13
+
+
+    hitTRVs(trvs);
+
 }
-// Use this for testing
-// {
-//     "id": 123,
-//         "src": "user_1",
-//             "method": "Script.Eval",
-//                 "params": {
-//         "id": 3,
-//             "code": "scheduledTask()"
-//     }
-// }
+
+
