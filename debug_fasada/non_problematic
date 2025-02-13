@@ -1,0 +1,84 @@
+1st time unproblematic:
+shellytrv-842e14fe1d64
+shellytrv-b4e3f9d9e3d7
+shellytrv-842e14ffcb48
+shellytrv-842e14ffca22
+shellytrv-842e14fe1fc2
+shellytrv-8cf681d9a228
+shellytrv-b4e3f9d6249d
+shellytrv-8cf681e9a780
+shellytrv-cc86ecb3e4cd
+shellytrv-b4e3f9d9bc83
+shellytrv-8cf681a51bae
+shellytrv-8cf681be1032
+shellytrv-8cf681b9c924
+shellytrv-8cf681c1abc8
+shellytrv-8cf681d9a230
+shellytrv-b4e3f9e30ab3
+shellytrv-842e14ffaf1c
+shellytrv-8cf681be1608
+shellytrv-8cf681a52e2e
+shellytrv-842e14ffcbea
+
+
+
+2nd time unproblematic: 19
+shellytrv-842e14fe1d64
+shellytrv-8cf681d9a228
+shellytrv-b4e3f9e30ab3
+shellytrv-842e14ffca22
+shellytrv-8cf681e9a780
+shellytrv-588e81616fe8
+shellytrv-588e81a6306d
+shellytrv-842e14ffcbea
+shellytrv-b4e3f9d6249d
+shellytrv-8cf681b9c952
+shellytrv-842e14fe1fc2
+shellytrv-8cf681be1032
+shellytrv-b4e3f9d9e3d7
+shellytrv-8cf681a51bae
+shellytrv-8cf681b9c924
+shellytrv-8cf681c1abc8
+shellytrv-8cf681b70b5e
+shellytrv-8cf681d9a230
+shellytrv-8cf681be1608
+
+
+problematic:
+shellytrv-8cf681beo83a 192.168.1.50
+error = "-10: Host not found"
+shellytrv-588e81616952 192.168.1.139
+error = "-10: Host not found"
+shellytrv-8cf681cd1598 offline
+error = "-10: Host not found"
+shellytrv-588e816162de offline
+error = "-10: Host not found"
+shellytrv-588e815ca57a offline
+error = "-10: Host not found"
+shellytrv-b4e3f9d9bc83 192.168.1.79
+error = "-1: Connection error: -13"
+shellytrv-cc86ecb3e4cd offline
+error = "-10: Host not found"
+shellytrv-588e81a63315 offline
+error = "-104: Timed out"
+shellytrv-842e14ffcb48 192.168.1.43
+error = "-104: Timed out"
+shellytrv-8cf681b70e6c offline
+error = "-104: Timed out"
+shellytrv-588e81617272 offline
+error = "-104: Timed out"
+shellytrv-bc33ac022f76 offline
+error = "-104: Timed out"
+shellytrv-8cf681a52e44 offline
+error = "-104: Timed out"
+shellytrv-588e81a41b47 offline
+error = "-104: Timed out"
+shellytrv-8cf681cd22c2 192.168.1.17
+error = "-104: Timed out"
+shellytrv-8cf681b9c9ae 192.168.1.73
+error = "-104: Timed out"
+shellytrv-842e14ffaf1c offline
+error = "-1: Connection error: -13"
+shellytrv-8cf681a52e2e offline
+error = "-104: Timed out"
+
