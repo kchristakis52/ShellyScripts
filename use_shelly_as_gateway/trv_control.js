@@ -78,13 +78,13 @@ let ShellyCallQ = {
 };
 function processHTTPData(data, error_code, error_message, userdata) {
     let trvHostname = userdata.trvHostname;
-    MQTT.publish("debug/" + trvHostname + "/nai", "JSON.stringify(error_message)", 1, true)
+    // MQTT.publish("debug/" + trvHostname + "/nai", "JSON.stringify(error_message)", 1, true)
 
     if (error_code != 0) {
         print(error_message)
-        MQTT.publish("debug/" + trvHostname + "/error", JSON.stringify(error_message), 1, true)
+        MQTT.publish("buildon-control/fasada/" + trvHostname + "/error", JSON.stringify(error_message), 1, true)
     }
-    MQTT.publish("debug/" + trvHostname + "/response", JSON.stringify(data), 1, true)
+    MQTT.publish("buildon-control/fasada/" + trvHostname + "/response", JSON.stringify(data), 1, true)
 }
 
 function processKVSData(result, error_code, error_message, userdata) {
@@ -131,113 +131,118 @@ function processKVSData(result, error_code, error_message, userdata) {
 
 function commandCallback(topic, message) {
     let commandObject = JSON.parse(message);
-    if (commandObject.hasOwnProperty("room")) {
-        let room = commandObject.room;
-        let value = commandObject.value;
+    // if (commandObject.hasOwnProperty("room")) {
+    //     let room = commandObject.room;
+    //     let value = commandObject.value;
 
-        let userdata = { "value": value };
-        let calls_to_issue = [];
-        if (room === "all") {
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Classroom 1/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Classroom 2/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Classroom 3/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Classroom 4/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Classroom 5/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Corridor/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Corridor 2/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Kitchen/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Bathroom/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Director's office/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Vice Director's office/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Staff toilet/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/First Floor/*" },
-                processKVSData, userdata
-            ));
-        } else if (room === "Corridor") {
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Corridor/*" },
-                processKVSData, userdata
-            ));
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/Corridor 2/*" },
-                processKVSData, userdata
-            ));
+    //     let userdata = { "value": value };
+    //     let calls_to_issue = [];
+    //     if (room === "all") {
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Classroom 1/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Classroom 2/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Classroom 3/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Classroom 4/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Classroom 5/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Corridor/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Corridor 2/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Kitchen/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Bathroom/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Director's office/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Vice Director's office/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Staff toilet/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/First Floor/*" },
+    //             processKVSData, userdata
+    //         ));
+    //     } else if (room === "Corridor") {
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Corridor/*" },
+    //             processKVSData, userdata
+    //         ));
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/Corridor 2/*" },
+    //             processKVSData, userdata
+    //         ));
 
-        }
-        else {
-            calls_to_issue.push(ShellyCallQ.build_call(
-                "KVS.GetMany",
-                { match: "trv/" + room + "\/*" },
-                processKVSData, userdata
-            ));
-        }
+    //     }
+    //     else {
+    //         calls_to_issue.push(ShellyCallQ.build_call(
+    //             "KVS.GetMany",
+    //             { match: "trv/" + room + "\/*" },
+    //             processKVSData, userdata
+    //         ));
+    //     }
 
-        ShellyCallQ.add_calls(calls_to_issue);
+    //     ShellyCallQ.add_calls(calls_to_issue);
+    // }
+    // else if (commandObject.hasOwnProperty("hostname")) {
+    let trvHostname = commandObject.DeviceId;
+    let value = commandObject.Actions[0].ValuesMapping.Setpoint;
+    let measurementId = commandObject.Actions[0].MeasurementId;
+    endpointMap = {
+        "TargetTemperature": "/settings/thermostats/0?target_t=",
+        "ValvePosition": "/thermostats/0?pos=",
     }
-    else if (commandObject.hasOwnProperty("hostname")) {
-        let trvHostname = commandObject.hostname;
-        let value = commandObject.value;
-        let url = "http://" + trvHostname + "/settings/thermostats/0?target_t=" + value;
-        MQTT.publish("debug/" + trvHostname + "/url", url, 1, true)
-        ShellyCallQ.add_calls([ShellyCallQ.build_call(
-            "HTTP.GET",
-            { url: url }, processHTTPData, { trvHostname: trvHostname }
+    let url = "http://" + trvHostname + endpointMap[measurementId] + value;
+    MQTT.publish("control_debug/" + trvHostname + "/url", url, 1, true)
+    ShellyCallQ.add_calls([ShellyCallQ.build_call(
+        "HTTP.GET",
+        { url: url }, processHTTPData, { trvHostname: trvHostname }
 
-        )]);
-    }
+    )]);
+    // }
 
 }
 
-MQTT.subscribe("buildon/fasada/gdynia/trvcommand", commandCallback)
+MQTT.subscribe("buildon-control/fasada", commandCallback)
